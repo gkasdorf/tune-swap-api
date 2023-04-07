@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Spotify;
 
 use App\Http\Controllers\Controller;
-use App\Http\Spotify\Spotify;
+use App\Spotify\Spotify;
 use Illuminate\Http\Request;
 
 class SpotifyController extends Controller

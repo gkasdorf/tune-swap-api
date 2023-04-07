@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\AppleMusic;
 
-use App\Http\AppleMusic\AppleMusic;
+use App\AppleMusic\AppleMusic;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -35,7 +35,7 @@ class AppleMusicAuthController extends Controller
         if ($request->web) {
             return redirect(env("CORS_URL") . "/app/applemusic/auth?complete=true");
         }
-        
+
         return redirect("exp://127.0.0.1:19000/?success=true");
     }
 }

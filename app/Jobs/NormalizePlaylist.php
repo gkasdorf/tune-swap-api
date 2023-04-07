@@ -6,14 +6,14 @@
 
 namespace App\Jobs;
 
-use App\Http\AppleMusic\AppleMusic;
+use App\AppleMusic\AppleMusic;
 use App\Http\MusicService;
-use App\Http\Spotify\Spotify;
 use App\Models\Playlist;
 use App\Models\PlaylistSong;
 use App\Models\Song;
 use App\Models\Swap;
 use App\Models\User;
+use App\Spotify\Spotify;
 
 class NormalizePlaylist
 {
@@ -29,6 +29,8 @@ class NormalizePlaylist
 
     private array $songsByServiceId;
     private int $playlistId;
+
+    private $retrySearch = false;
 
     /**
      * Create a new Normalize instance
@@ -233,6 +235,9 @@ class NormalizePlaylist
             // Take a deep breath! You're workin hard!!!
             usleep(500);
         } else if ($this->toService == MusicService::APPLE_MUSIC) {
+            // Make sure that retry is false
+            $this->retrySearch = false;
+
             // See if we already have the id for the song
             if ($song->apple_music_id) {
                 // Add the id to the array to return
@@ -257,6 +262,7 @@ class NormalizePlaylist
                 $this->swap->songs_found++;
                 $this->swap->save();
             } else {
+                error_log("We didn't find the song.");
                 // Update the count
                 $this->swap->songs_not_found++;
                 $this->swap->save();
@@ -299,19 +305,29 @@ class NormalizePlaylist
      * @param Song $song
      * @return ?string
      */
-    private function getAppleMusicSongId(Song $song): ?string
+    private function getAppleMusicSongId(Song $song, bool $retry = false): ?string
     {
         // Create our search data
         $search = $this->toApi->search([
             "name" => $song->name,
             "artist" => $song->artist,
             "album" => $song->album
-        ]);
+        ], $retry);
 
         // Try to get the id from the result, else return null
         try {
-            return $search->results->songs->data[0]->id;
+            $id = $search->results->songs->data[0]->id;
+
+            return $id;
         } catch (\Exception) {
+            // If we have not already retried, lets do that
+            if (!$this->retrySearch) {
+                error_log("Didn't find the song, attempting to retry...");
+                $this->retrySearch = true;
+                return $this->getAppleMusicSongId($song, true);
+            }
+
+            error_log("Still didn't find the track after a retry. Moving on.");
             return null;
         }
     }
