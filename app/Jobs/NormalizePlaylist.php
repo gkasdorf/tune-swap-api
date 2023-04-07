@@ -6,14 +6,14 @@
 
 namespace App\Jobs;
 
-use App\Http\AppleMusic\AppleMusic;
+use App\AppleMusic\AppleMusic;
 use App\Http\MusicService;
-use App\Http\Spotify\Spotify;
 use App\Models\Playlist;
 use App\Models\PlaylistSong;
 use App\Models\Song;
 use App\Models\Swap;
 use App\Models\User;
+use App\Spotify\Spotify;
 
 class NormalizePlaylist
 {
