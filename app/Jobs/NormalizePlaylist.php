@@ -257,6 +257,7 @@ class NormalizePlaylist
                 $this->swap->songs_found++;
                 $this->swap->save();
             } else {
+                error_log("We didn't find the song.");
                 // Update the count
                 $this->swap->songs_not_found++;
                 $this->swap->save();
@@ -299,20 +300,29 @@ class NormalizePlaylist
      * @param Song $song
      * @return ?string
      */
-    private function getAppleMusicSongId(Song $song): ?string
+    private function getAppleMusicSongId(Song $song, bool $retry = false): ?string
     {
         // Create our search data
         $search = $this->toApi->search([
             "name" => $song->name,
             "artist" => $song->artist,
             "album" => $song->album
-        ]);
+        ], $retry);
 
         // Try to get the id from the result, else return null
         try {
-            return $search->results->songs->data[0]->id;
+            $id = $search->results->songs->data[0]->id;
+
+            return $id;
         } catch (\Exception) {
-            return null;
+            // If we have not already retried, lets do that
+            if (!$retry) {
+                error_log("Didn't find the song, attempting to retry...");
+                return $this->getAppleMusicSongId($song, true);
+            } else {
+                error_log("Still didn't find the track after a retry.");
+                return null;
+            }
         }
     }
 
