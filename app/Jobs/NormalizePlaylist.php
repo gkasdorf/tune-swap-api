@@ -97,27 +97,31 @@ class NormalizePlaylist
 
         // Loop through each of the songs
         foreach ($spotifyPlaylist as $spotifySong) {
-            // Try to get the song if we have it already
-            $song = Song::getById(MusicService::SPOTIFY, $spotifySong->track->id);
+            try {
+                // Try to get the song if we have it already
+                $song = Song::getById(MusicService::SPOTIFY, $spotifySong->track->id);
 
-            // If we don't have it, lets make a new one
-            if (!$song) {
-                $song = new Song([
-                    "name" => $spotifySong->track->name,
-                    "artist" => $spotifySong->track->artists[0]->name,
-                    "album" => $spotifySong->track->album->name,
-                    "spotify_id" => $spotifySong->track->id
-                ]);
+                // If we don't have it, lets make a new one
+                if (!$song) {
+                    $song = new Song([
+                        "name" => $spotifySong->track->name,
+                        "artist" => $spotifySong->track->artists[0]->name,
+                        "album" => $spotifySong->track->album->name,
+                        "spotify_id" => $spotifySong->track->id
+                    ]);
+                }
+
+                // Add the new service ID to the song
+                $song = $this->songTo($song);
+
+                // Save the song
+                $song->save();
+
+                // Create playlist link
+                PlaylistSong::createLink($this->playlistId, $song->id);
+            } catch (\Exception $e) {
+                error_log($e);
             }
-
-            // Add the new service ID to the song
-            $song = $this->songTo($song);
-
-            // Save the song
-            $song->save();
-
-            // Create playlist link
-            PlaylistSong::createLink($this->playlistId, $song->id);
         }
 
         // Get the name for the playlist
@@ -148,39 +152,43 @@ class NormalizePlaylist
 
         // Loop through each song
         foreach ($applePlaylist as $appleSong) {
-            // Get the catalog id
-            if (isset($appleSong->attributes->playParams)) {
-                $catalogId = $appleSong->attributes->playParams->catalogId;
-            } else {
-                $catalogId = null;
+            try {
+                // Get the catalog id
+                if (isset($appleSong->attributes->playParams)) {
+                    $catalogId = $appleSong->attributes->playParams->catalogId;
+                } else {
+                    $catalogId = null;
+                }
+
+                // See if we have the song
+                $song = Song::getById(MusicService::APPLE_MUSIC, $catalogId);
+
+                // If not we will make a new one
+                if (!$song) {
+                    // Because Apple contains the whole list of artists whereas spotify gives us just one, we will convert to just one
+                    $artistName = explode("&", $appleSong->attributes->artistName)[0];
+                    $artistName = explode(",", $artistName)[0];
+
+                    // Make the song
+                    $song = new Song([
+                        "name" => $appleSong->attributes->name,
+                        "artist" => $artistName,
+                        "album" => $appleSong->attributes->albumName,
+                        "apple_music_id" => $catalogId
+                    ]);
+                }
+
+                // Convert the song
+                $song = $this->songTo($song);
+
+                // Save the song
+                $song->save();
+
+                // Create playlist link
+                PlaylistSong::createLink($this->playlistId, $song->id);
+            } catch (\Exception $e) {
+                error_log($e);
             }
-
-            // See if we have the song
-            $song = Song::getById(MusicService::APPLE_MUSIC, $catalogId);
-
-            // If not we will make a new one
-            if (!$song) {
-                // Because Apple contains the whole list of artists whereas spotify gives us just one, we will convert to just one
-                $artistName = explode("&", $appleSong->attributes->artistName)[0];
-                $artistName = explode(",", $artistName)[0];
-
-                // Make the song
-                $song = new Song([
-                    "name" => $appleSong->attributes->name,
-                    "artist" => $artistName,
-                    "album" => $appleSong->attributes->albumName,
-                    "apple_music_id" => $catalogId
-                ]);
-            }
-
-            // Convert the song
-            $song = $this->songTo($song);
-
-            // Save the song
-            $song->save();
-
-            // Create playlist link
-            PlaylistSong::createLink($this->playlistId, $song->id);
         }
 
         // Get the name for the playlist
