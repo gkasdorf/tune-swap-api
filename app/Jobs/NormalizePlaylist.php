@@ -30,6 +30,8 @@ class NormalizePlaylist
     private array $songsByServiceId;
     private int $playlistId;
 
+    private $retrySearch = false;
+
     /**
      * Create a new Normalize instance
      * @param MusicService $fromService
@@ -316,11 +318,13 @@ class NormalizePlaylist
             return $id;
         } catch (\Exception) {
             // If we have not already retried, lets do that
-            if (!$retry) {
+            if (!$this->retrySearch) {
                 error_log("Didn't find the song, attempting to retry...");
+                $this->retrySearch = true;
                 return $this->getAppleMusicSongId($song, true);
             } else {
-                error_log("Still didn't find the track after a retry.");
+                error_log("Still didn't find the track after a retry. Moving on.");
+                $this->retrySearch = false;
                 return null;
             }
         }
