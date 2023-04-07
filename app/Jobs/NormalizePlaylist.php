@@ -235,6 +235,9 @@ class NormalizePlaylist
             // Take a deep breath! You're workin hard!!!
             usleep(500);
         } else if ($this->toService == MusicService::APPLE_MUSIC) {
+            // Make sure that retry is false
+            $this->retrySearch = false;
+
             // See if we already have the id for the song
             if ($song->apple_music_id) {
                 // Add the id to the array to return
@@ -322,11 +325,10 @@ class NormalizePlaylist
                 error_log("Didn't find the song, attempting to retry...");
                 $this->retrySearch = true;
                 return $this->getAppleMusicSongId($song, true);
-            } else {
-                error_log("Still didn't find the track after a retry. Moving on.");
-                $this->retrySearch = false;
-                return null;
             }
+
+            error_log("Still didn't find the track after a retry. Moving on.");
+            return null;
         }
     }
 
