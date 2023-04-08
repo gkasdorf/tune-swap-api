@@ -33,7 +33,6 @@ We need to add the following GET parameters to the URL:
 ```text
 appMode=WEB
 client_id=CzET4vdadNUFQ5JU // This may change, so be prepared to get a new one. Ideally, you should dynamically get this to prevent any breaking of your application.
-client_unique_key=<v4UUID> // Generate a v4 UUID. For example, https://stackoverflow.com/questions/2040240/php-function-to-generate-v4-uuid
 code_challenge=<PKCE token> // Generate a PKCE token. For example, https://stackoverflow.com/questions/75591478/php-get-token-oauth-pkce
 code_challenge_method=S256
 lang=en
@@ -53,7 +52,6 @@ parameters.
 
 ```text
 client_id=CzET4vdadNUFQ5JU
-client_unique_key=<key> // The one you generated earlier.
 code_verifier=<verifier> // The SHA256 hash you generated earlier.
 grant_type=authorization_code
 redirect_uri=https://listen.tidal.com/login/auth
