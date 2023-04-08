@@ -15,6 +15,10 @@ class Tidal
 
     private static string $authUrl = "https://login.tidal.com/authorize";
 
+    private static string $tokenUrl = "https://login.tidal.com/oauth2/token";
+
+    private static string $clientId = "CzET4vdadNUFQ5JU";
+
     public function __construct(User $user, $token = null)
     {
         if (!empty($user->tidal_token)) {
@@ -41,22 +45,6 @@ class Tidal
      *
      */
 
-    /**
-     * Courtesy Jack https://stackoverflow.com/questions/2040240/php-function-to-generate-v4-uuid
-     * @return string|void
-     */
-    private static function genUUIDv4()
-    {
-        $data = openssl_random_pseudo_bytes(16);
-
-        assert(strlen($data) == 16);
-
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-
-        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-    }
-
     public static function createAuthUrl(): array
     {
         // Generate a challenge code and verifier
@@ -65,14 +53,11 @@ class Tidal
         $challengeBytes = hash("sha256", $codeVerifier, true);
         $codeChallenge = rtrim(strtr(base64_encode($challengeBytes), "+/", "-_"), "=");
 
-        $uniqueKey = self::genUUIDv4();
-
         $params = [
             "appMode" => "WEB",
             // this isn't sensitive as it isn't our ID. Should it be in the .env? Yea, but we will put it here so that
             // anyone who ever runs across this and needs it can have it :)
-            "client_id" => "CzET4vdadNUFQ5JU",
-            "client_unique_key" => $uniqueKey,
+            "client_id" => self::$clientId,
             "code_challenge" => $codeChallenge,
             "code_challenge_method" => "S256",
             "lang" => "en",
@@ -95,8 +80,21 @@ class Tidal
             "url" => $tidalUrl,
             "codeVerifier" => $codeVerifier,
             "codeChallenge" => $codeChallenge,
-            "uniqueKey" => $uniqueKey
         ];
+    }
+
+    public static function auth(string $code, string $codeVerifier)
+    {
+        $data = [
+            "client_id" => self::$clientId,
+            "code" => $code,
+            "code_verifier" => $codeVerifier,
+            "grant_type" => "authorization_code",
+            "redirect_uri" => "https://listen.tidal.com/login/auth",
+            "scope" => "r_usr w_usr"
+        ];
+
+        return json_decode(Http::acceptJson()->post(self::$tokenUrl, $data)->body());
     }
 
     public function getUserPlaylist(string $id): object

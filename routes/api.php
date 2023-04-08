@@ -69,6 +69,7 @@ Route::middleware("auth:sanctum")->group(function () {
      * Tidal Routes
      */
     Route::get("/tidal/authUrl", [TidalController::class, "authUrl"]);
+    Route::post("/tidal/auth", [TidalController::class, "auth"]);
 
     /*
      * Swap routes
