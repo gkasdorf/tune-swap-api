@@ -5,6 +5,7 @@ use App\Http\Controllers\AppleMusic\AppleMusicController;
 use App\Http\Controllers\Spotify\SpotifyAuthController;
 use App\Http\Controllers\Spotify\SpotifyController;
 use App\Http\Controllers\SwapController;
+use App\Http\Controllers\Tidal\TidalController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -63,6 +64,11 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/applemusic/me/playlist/{id}/name", [AppleMusicController::class, "userPlaylistName"]);
     Route::get("/applemusic/me/playlists", [AppleMusicController::class, "userPlaylists"]);
     Route::get("/applemusic/me/storefront", [AppleMusicController::class, "storefront"]);
+
+    /**
+     * Tidal Routes
+     */
+    Route::get("/tidal/authUrl", [TidalController::class, "authUrl"]);
 
     /*
      * Swap routes

@@ -40,7 +40,7 @@ lang=en
 redirect_uri=https://listen.tidal.com/login/auth
 response_type=code
 restrictSignup=true
-scope=r_usr,w_usr
+scope=r_usr w_usr
 autoredirect=true
 ```
 
