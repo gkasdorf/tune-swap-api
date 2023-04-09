@@ -50,7 +50,10 @@ class TidalController extends Controller
         return [
             "code" => 1000,
             "message" => "Tidal successfully authenticated.",
-            "email" => $user->tidal_email
+            "data" => [
+                "tidalEmail" => $user->tidal_email,
+                "tidalUsername" => $user->tidal_username
+            ]
         ];
     }
 }
