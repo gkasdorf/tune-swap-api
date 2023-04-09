@@ -54,4 +54,9 @@ class User extends Authenticatable
     {
         return isset($this->apple_music_token);
     }
+
+    public function hasTidal()
+    {
+        return isset($this->tidal_token);
+    }
 }

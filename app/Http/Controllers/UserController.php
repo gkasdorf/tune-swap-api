@@ -177,4 +177,13 @@ class UserController extends Controller
             "has" => $request->user()->hasAppleMusic()
         ];
     }
+
+    public function hasTidal(Request $request)
+    {
+        return [
+            "code" => 1000,
+            "message" => "User authenticated. See auth.",
+            "has" => $request->user()->hasTidal()
+        ];
+    }
 }
