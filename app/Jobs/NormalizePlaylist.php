@@ -14,6 +14,7 @@ use App\Models\Song;
 use App\Models\Swap;
 use App\Models\User;
 use App\Spotify\Spotify;
+use App\Tidal\Tidal;
 
 class NormalizePlaylist
 {
@@ -54,14 +55,18 @@ class NormalizePlaylist
 
         // Decide which API instance we need to use
         if ($this->fromService == MusicService::SPOTIFY)
-            $this->fromApi = new Spotify($user);
+            $this->fromApi = new Spotify($this->user);
         else if ($this->fromService == MusicService::APPLE_MUSIC)
-            $this->fromApi = new AppleMusic($user);
+            $this->fromApi = new AppleMusic($this->user);
+        else if ($this->fromService == MusicService::TIDAL)
+            $this->fromApi = new Tidal($this->user);
 
         if ($this->toService == MusicService::SPOTIFY)
             $this->toApi = new Spotify($this->user);
         else if ($this->toService == MusicService::APPLE_MUSIC)
             $this->toApi = new AppleMusic($this->user);
+        else if ($this->toService == MusicService::TIDAL)
+            $this->toApi = new Tidal($this->user);
     }
 
     /**
@@ -78,6 +83,8 @@ class NormalizePlaylist
             return $this->fromSpotify();
         else if ($this->fromService == MusicService::APPLE_MUSIC) {
             return $this->fromAppleMusic();
+        } else if ($this->fromService == MusicService::TIDAL) {
+            return $this->fromTidal();
         }
 
         return null;
@@ -201,6 +208,53 @@ class NormalizePlaylist
         ];
     }
 
+    private function fromTidal(): array
+    {
+        $tidalPlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id);
+
+        $this->swap->total_songs = count($tidalPlaylist);
+        $this->swap->save();
+
+        // Loop through each song
+        foreach ($tidalPlaylist as $tidalSong) {
+            try {
+                // See if we have the song
+                $song = Song::getById(MusicService::TIDAL, $tidalSong->id);
+
+                // If not we will make a new one
+                if (!$song) {
+                    // Make the song
+                    $song = new Song([
+                        "name" => $tidalSong->title,
+                        "artist" => $tidalSong->artist->name,
+                        "album" => $tidalSong->album->title,
+                        "tidal_id" => $tidalSong->id
+                    ]);
+                }
+
+                // Convert the song
+                $song = $this->songTo($song);
+
+                // Save the song
+                $song->save();
+
+                // Create playlist link
+                PlaylistSong::createLink($this->playlistId, $song->id);
+            } catch (\Exception $e) {
+                error_log($e);
+            }
+        }
+
+        // Get the name for the playlist
+        $name = $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
+
+        // Return the results
+        return [
+            "name" => $name,
+            "ids" => $this->songsByServiceId
+        ];
+    }
+
     /**
      * Decide which service we are going to be converting the song to
      * @param Song $song
@@ -280,6 +334,31 @@ class NormalizePlaylist
             $song->apple_music_id = $id;
             // Breathe for a minute, you got this!!
             usleep(500);
+        } else if ($this->toService == MusicService::TIDAL) {
+            if ($song->tidal_id) {
+                $this->songsByServiceId[] = $song->tidal_id;
+
+                $this->swap->songs_found++;
+                $this->swap->save();
+
+                return $song;
+            }
+
+            $id = $this->getTidalSongId($song);
+
+            if ($id) {
+                $this->songsByServiceId[] = $id;
+
+                $this->swap->songs_found++;
+                $this->swap->save();
+            } else {
+                $this->swap->songs_not_found++;
+                $this->swap->save();
+            }
+
+            $song->tidal_id = $id;
+
+            usleep(500);
         }
 
         // Return the song
@@ -336,6 +415,21 @@ class NormalizePlaylist
             }
 
             error_log("Still didn't find the track after a retry. Moving on.");
+            return null;
+        }
+    }
+
+    private function getTidalSongId(Song $song): ?string
+    {
+        $search = $this->toApi->search([
+            "name" => $song->name,
+            "artist" => $song->artist,
+            "album" => $song->album
+        ]);
+
+        try {
+            return $search->id;
+        } catch (\Exception) {
             return null;
         }
     }

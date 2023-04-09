@@ -180,7 +180,7 @@ class Tidal
         $data = self::addCountryCode([]);
 
         // Create our URL
-        $url = "$this->baseUrlv1/playlist/$id?" . http_build_query($data);
+        $url = "$this->baseUrlv1/playlists/$id?" . http_build_query($data);
 
         // Return the name
         return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->title;

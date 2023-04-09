@@ -8,6 +8,7 @@ use App\Models\Swap;
 use App\Models\SwapStatus;
 use App\Models\User;
 use App\Spotify\Spotify;
+use App\Tidal\Tidal;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,6 +60,9 @@ class ProcessSwap implements ShouldQueue
             $api->createPlaylist($this->swap->playlist_name, $normalized["ids"]);
         } else if (MusicService::from($this->swap->to_service) == MusicService::APPLE_MUSIC) {
             $api = new AppleMusic($this->user);
+            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"]);
+        } else if (MusicService::from($this->swap->to_service) == MusicService::TIDAL) {
+            $api = new Tidal($this->user);
             $api->createPlaylist($this->swap->playlist_name, $normalized["ids"]);
         }
 
