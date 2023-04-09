@@ -40,6 +40,7 @@ Route::middleware("auth:sanctum")->group(function () {
      */
     Route::get("/user/has/spotify", [UserController::class, "hasSpotify"]);
     Route::get("/user/has/applemusic", [UserController::class, "hasAppleMusic"]);
+    Route::get("/user/has/tidal", [UserController::class, "hasTidal"]);
 
     /*
      * Spotify auth routes
