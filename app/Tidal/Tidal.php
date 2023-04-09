@@ -2,11 +2,12 @@
 
 namespace App\Tidal;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 class Tidal
 {
-    private array $header;
+    private array $header = [];
     private string $countryCode = "US";
     private string $locale = "en_US";
 
@@ -19,8 +20,12 @@ class Tidal
 
     private static string $clientId = "CzET4vdadNUFQ5JU";
 
+    private User $user;
+
     public function __construct(User $user, $token = null)
     {
+        $this->user = $user;
+
         if (!empty($user->tidal_token)) {
             $this->header["Authorization"] = "Bearer " . $user->tidal_token;
         } else if (!empty($token)) {
@@ -85,6 +90,7 @@ class Tidal
 
     public static function auth(string $code, string $codeVerifier)
     {
+        // Create our data
         $data = [
             "client_id" => self::$clientId,
             "code" => $code,
@@ -94,34 +100,151 @@ class Tidal
             "scope" => "r_usr w_usr"
         ];
 
+        // Return the auth response
         return json_decode(Http::acceptJson()->post(self::$tokenUrl, $data)->body());
     }
 
-    public function getUserPlaylist(string $id): object
-    {
-        $url = "$this->baseUrlv1/playlists/$id/tracks";
-
-        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
-    }
-
+    /**
+     * Return all the user's playlists
+     * @return object
+     */
     public function getUserPlaylists(): object
     {
-        $url = "";
+        // Create our data
+        $data = [
+            "folderId" => "root",
+            "includeOnly" => "",
+            "offset" => 0,
+            "limit" => 50,
+            "order" => "DATE",
+            "orderDirection" => "DESC"
+        ];
 
-        return json_decode(Http::withHeaders($this->header)->accpetJson()->get($url)->body());
-    }
+        // Create our URL
+        $url = "$this->baseUrlv2/my-collection/playlists/folders?" . http_build_query($data);
 
-    public function getUserPlaylistName(string $id): object
-    {
-        $url = "$this->baseUrlv1/playlist/$id";
-
+        // Return the response
         return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
     }
 
-    public function search(array $query): object
+    public function getPlaylist(string $id): array
     {
+        // Create our data
+        $data = self::addCountryCode([
+            "limit" => 100,
+            "offset" => 0
+        ]);
+
+        // Create our url
+        $url = "$this->baseUrlv1/playlists/$id/tracks?" . http_build_query($data);
+
+        // Get the response
+        $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+
+        // SEt our offset to 0
+        $offset = 0;
+
+        // Set the total number of items in the playlist
+        $totalItems = $response->totalNumberOfItems;
+
+        // Create the initial array with the first items
+        $tracks = $response->items;
+
+        // Get the rest of the items
+        while ($offset + 100 < $totalItems) {
+            // Add 100 to the offset and set our data
+            $offset = $offset + 100;
+            $data["offset"] = $offset;
+
+            // Create the new URL
+            $url = "$this->baseUrlv1/playlists/$id/tracks?" . http_build_query($data);
+
+            // Get the response
+            $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+
+            // Add the tracks to the array
+            $tracks = array_merge($tracks, $response->items);
+        }
+
+        return $tracks;
+    }
+
+    /**
+     * Get the name of a playlist
+     * @param string $id
+     * @return string
+     */
+    public function getPlaylistName(string $id): string
+    {
+        // Create the data
+        $data = self::addCountryCode([]);
+
+        // Create our URL
+        $url = "$this->baseUrlv1/playlist/$id?" . http_build_query($data);
+
+        // Return the name
+        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->title;
+    }
+
+    /**
+     * Get the tracks from the library. Same as for a plylist, but the limit is 10000 (!)
+     * @return array
+     */
+    public function getLibrary(): array
+    {
+        $data = self::addCountryCode([
+            "limit" => 10000,
+            "offset" => 0,
+            "order" => "DATE",
+            "orderDirection" => "DESC"
+        ]);
+
+        $url = "$this->baseUrlv1/users/" . $this->user->tidal_user_id . "/favorites/tracks?";
+        $urlWithData = $url . http_build_query($data);
+
+        $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($urlWithData)->body());
+
+        // Set our offset
+        $offset = 0;
+
+        // Set our total items
+        $totalItems = $response->totalNumberOfItems;
+
+        // Create our array
+        $tracks = $response->items;
+
+        while ($offset + 10000 < $totalItems) {
+            // Add 100 to the offset and set our data
+            $offset = $offset + 100;
+            $data["offset"] = $offset;
+
+            // Create the new URL
+            $urlWithData = $url . http_build_query($data);
+
+            // Get the response
+            $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($urlWithData)->body());
+
+            // Add the tracks to the array
+            $tracks = array_merge($tracks, $response->items);
+        }
+
+        return $tracks;
+    }
+
+    /**
+     * @param array $query
+     *      $query = [
+     *          'name' => (string) The track to search for
+     *          'artist' => (string) The artist to search for
+     *          'album' => (string) The album to search for
+     * @return object|null
+     */
+    public function search(array $query): ?object
+    {
+        // Create the term
         $term = str_replace("'", "", $query["name"]) . " " . str_replace("'", "", $query["artist"]) . " " . str_replace("'", "", $query["album"]);
 
+        // Create our data
         $data = [
             "query" => $term,
             "limit" => 1,
@@ -133,16 +256,25 @@ class Tidal
             "locale" => "en_US"
         ];
 
+        // Create our URL
         $url = "$this->baseUrlv1/search?" . http_build_query($data);
 
+        // Get that response
         $resp = Http::withHeaders($this->header)->get($url);
 
-        return json_decode($resp->body());
+        try {
+            // Try to return the song
+            return json_decode($resp->body())->tracks->items[0];
+        } catch (\Exception) {
+            // If there wasn't anything we just return null
+            return null;
+        }
     }
 
     public function createPlaylist(string $name, array $tracks): object
     {
-        $createData = [
+        // Set the create data
+        $data = [
             "name" => $name,
             "description" => "Transferred with TuneSwap",
             "isPublic" => false,
@@ -151,22 +283,49 @@ class Tidal
             "locale" => "en_US"
         ];
 
-        $url = "$this->baseUrlv2/my-collection/playlists/folders/create-playlist?" . http_build_query($createData);
+        // Set the URL for create
+        $url = "$this->baseUrlv2/my-collection/playlists/folders/create-playlist?" . http_build_query($data);
 
+        // Create the playlist
         $createResp = json_decode(Http::withHeaders($this->header)->put($url)->body());
 
+        // Get the playlist ID
         $playlistId = $createResp->id;
 
-        $tracksStr = implode(",", $tracks);
+        // Cut up that shit...chunky chunky
+        $chunks = array_chunk($tracks, 50);
 
-        $tracksData = [
-            "trackIds" => $tracksStr
-        ];
-
+        // Set the add items url
         $url = "$this->baseUrlv1/playlists/$playlistId/items";
 
-        Http::withHeaders($this->header)->post($url, $tracksData);
+        // For each chunk...
+        foreach ($chunks as $chunk) {
+            // Create a string from the chunk
+            $chunkStr = implode(",", $chunk);
 
+            // Create the data array
+            $data = [
+                "trackIds" => $chunkStr
+            ];
+
+            // Post that shit
+            Http::withHeaders($this->header)->post($url, $data);
+        }
+
+        // Return the data about the playlist
         return $createResp;
+    }
+
+    /**
+     * Add countryCode and locale to data
+     * @param $data
+     * @return array
+     */
+    public static function addCountryCode($data): array
+    {
+        $data["countryCode"] = "US";
+        $data["locale"] = "en_US";
+
+        return $data;
     }
 }
