@@ -6,14 +6,14 @@
 
 namespace App\Jobs;
 
-use App\Http\AppleMusic\AppleMusic;
+use App\AppleMusic\AppleMusic;
 use App\Http\MusicService;
-use App\Http\Spotify\Spotify;
 use App\Models\Playlist;
 use App\Models\PlaylistSong;
 use App\Models\Song;
 use App\Models\Swap;
 use App\Models\User;
+use App\Spotify\Spotify;
 
 class NormalizePlaylist
 {
@@ -29,6 +29,8 @@ class NormalizePlaylist
 
     private array $songsByServiceId;
     private int $playlistId;
+
+    private $retrySearch = false;
 
     /**
      * Create a new Normalize instance
@@ -95,27 +97,31 @@ class NormalizePlaylist
 
         // Loop through each of the songs
         foreach ($spotifyPlaylist as $spotifySong) {
-            // Try to get the song if we have it already
-            $song = Song::getById(MusicService::SPOTIFY, $spotifySong->track->id);
+            try {
+                // Try to get the song if we have it already
+                $song = Song::getById(MusicService::SPOTIFY, $spotifySong->track->id);
 
-            // If we don't have it, lets make a new one
-            if (!$song) {
-                $song = new Song([
-                    "name" => $spotifySong->track->name,
-                    "artist" => $spotifySong->track->artists[0]->name,
-                    "album" => $spotifySong->track->album->name,
-                    "spotify_id" => $spotifySong->track->id
-                ]);
+                // If we don't have it, lets make a new one
+                if (!$song) {
+                    $song = new Song([
+                        "name" => $spotifySong->track->name,
+                        "artist" => $spotifySong->track->artists[0]->name,
+                        "album" => $spotifySong->track->album->name,
+                        "spotify_id" => $spotifySong->track->id
+                    ]);
+                }
+
+                // Add the new service ID to the song
+                $song = $this->songTo($song);
+
+                // Save the song
+                $song->save();
+
+                // Create playlist link
+                PlaylistSong::createLink($this->playlistId, $song->id);
+            } catch (\Exception $e) {
+                error_log($e);
             }
-
-            // Add the new service ID to the song
-            $song = $this->songTo($song);
-
-            // Save the song
-            $song->save();
-
-            // Create playlist link
-            PlaylistSong::createLink($this->playlistId, $song->id);
         }
 
         // Get the name for the playlist
@@ -146,39 +152,43 @@ class NormalizePlaylist
 
         // Loop through each song
         foreach ($applePlaylist as $appleSong) {
-            // Get the catalog id
-            if (isset($appleSong->attributes->playParams)) {
-                $catalogId = $appleSong->attributes->playParams->catalogId;
-            } else {
-                $catalogId = null;
+            try {
+                // Get the catalog id
+                if (isset($appleSong->attributes->playParams)) {
+                    $catalogId = $appleSong->attributes->playParams->catalogId;
+                } else {
+                    $catalogId = null;
+                }
+
+                // See if we have the song
+                $song = Song::getById(MusicService::APPLE_MUSIC, $catalogId);
+
+                // If not we will make a new one
+                if (!$song) {
+                    // Because Apple contains the whole list of artists whereas spotify gives us just one, we will convert to just one
+                    $artistName = explode("&", $appleSong->attributes->artistName)[0];
+                    $artistName = explode(",", $artistName)[0];
+
+                    // Make the song
+                    $song = new Song([
+                        "name" => $appleSong->attributes->name,
+                        "artist" => $artistName,
+                        "album" => $appleSong->attributes->albumName,
+                        "apple_music_id" => $catalogId
+                    ]);
+                }
+
+                // Convert the song
+                $song = $this->songTo($song);
+
+                // Save the song
+                $song->save();
+
+                // Create playlist link
+                PlaylistSong::createLink($this->playlistId, $song->id);
+            } catch (\Exception $e) {
+                error_log($e);
             }
-
-            // See if we have the song
-            $song = Song::getById(MusicService::APPLE_MUSIC, $catalogId);
-
-            // If not we will make a new one
-            if (!$song) {
-                // Because Apple contains the whole list of artists whereas spotify gives us just one, we will convert to just one
-                $artistName = explode("&", $appleSong->attributes->artistName)[0];
-                $artistName = explode(",", $artistName)[0];
-
-                // Make the song
-                $song = new Song([
-                    "name" => $appleSong->attributes->name,
-                    "artist" => $artistName,
-                    "album" => $appleSong->attributes->albumName,
-                    "apple_music_id" => $catalogId
-                ]);
-            }
-
-            // Convert the song
-            $song = $this->songTo($song);
-
-            // Save the song
-            $song->save();
-
-            // Create playlist link
-            PlaylistSong::createLink($this->playlistId, $song->id);
         }
 
         // Get the name for the playlist
@@ -233,6 +243,9 @@ class NormalizePlaylist
             // Take a deep breath! You're workin hard!!!
             usleep(500);
         } else if ($this->toService == MusicService::APPLE_MUSIC) {
+            // Make sure that retry is false
+            $this->retrySearch = false;
+
             // See if we already have the id for the song
             if ($song->apple_music_id) {
                 // Add the id to the array to return
@@ -257,6 +270,7 @@ class NormalizePlaylist
                 $this->swap->songs_found++;
                 $this->swap->save();
             } else {
+                error_log("We didn't find the song.");
                 // Update the count
                 $this->swap->songs_not_found++;
                 $this->swap->save();
@@ -299,19 +313,29 @@ class NormalizePlaylist
      * @param Song $song
      * @return ?string
      */
-    private function getAppleMusicSongId(Song $song): ?string
+    private function getAppleMusicSongId(Song $song, bool $retry = false): ?string
     {
         // Create our search data
         $search = $this->toApi->search([
             "name" => $song->name,
             "artist" => $song->artist,
             "album" => $song->album
-        ]);
+        ], $retry);
 
         // Try to get the id from the result, else return null
         try {
-            return $search->results->songs->data[0]->id;
+            $id = $search->results->songs->data[0]->id;
+
+            return $id;
         } catch (\Exception) {
+            // If we have not already retried, lets do that
+            if (!$this->retrySearch) {
+                error_log("Didn't find the song, attempting to retry...");
+                $this->retrySearch = true;
+                return $this->getAppleMusicSongId($song, true);
+            }
+
+            error_log("Still didn't find the track after a retry. Moving on.");
             return null;
         }
     }

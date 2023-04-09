@@ -4,7 +4,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
-namespace App\Http\AppleMusic;
+namespace App\AppleMusic;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -123,13 +123,37 @@ class AppleMusic
      *      ]
      * @return object
      */
-    public function search(array $query): object
+    public function search(array $query, $retry = false): object
     {
         // Since we are really only worried about finding tracks right now, we will just default to that.
 
         // Make our search term
-        $term = str_replace("'", "", $query["name"]) . "+" . str_replace("'", "", $query["artist"]) . "+" . str_replace("'", "", $query["album"]);
+        if ($retry) {
+            $lower = strtolower($query["name"]);
+
+            // Remove "recorded at"
+            if (str_contains($lower, "recorded at")) {
+                $lower = explode("recorded at", $lower)[0];
+            }
+
+            // Remove "xxxx remaster"
+            if (str_contains($lower, "20")) {
+                $lower = explode("20", $lower)[0];
+                $lower = str_replace("(", "", $lower);
+            }
+
+            $query["name"] = $lower;
+
+            $term = $query["name"] . " " . $query["artist"];
+        } else {
+            $term = $query["name"] . " " . $query["artist"] . " " . $query["album"];
+        }
+
+        // Fix our term
         $term = str_replace(" ", "+", $term);
+        $term = str_replace("'", "", $term);
+        $term = str_replace("-", "", $term);
+        $term = str_replace("++", "+", $term);
 
         error_log("Our term is " . $term);
 

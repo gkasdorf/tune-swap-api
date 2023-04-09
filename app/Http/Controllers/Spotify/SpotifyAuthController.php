@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Spotify;
 
 use App\Http\Controllers\Controller;
-use App\Http\Spotify\Spotify;
-use App\Http\Spotify\SpotifyAuthentication;
 use App\Models\User;
+use App\Spotify\Spotify;
+use App\Spotify\SpotifyAuthentication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 
