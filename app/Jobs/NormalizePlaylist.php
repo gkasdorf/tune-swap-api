@@ -436,9 +436,6 @@ class NormalizePlaylist
 
     private function savePlaylist(): void
     {
-        error_log($this->user->id);
-        error_log($this->swap->from_service);
-
         //TODO update this when we add more services
         $playlist = new Playlist([
             "name" => $this->swap->playlist_name,
@@ -448,8 +445,6 @@ class NormalizePlaylist
             "original_service" => $this->swap->from_service,
             "original_id" => $this->swap->from_playlist_id
         ]);
-
-        error_log(json_encode($playlist));
 
         $playlist->save();
 

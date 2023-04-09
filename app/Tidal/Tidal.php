@@ -241,8 +241,9 @@ class Tidal
      */
     public function search(array $query): ?object
     {
+        $query["name"] = explode("(", $query["name"])[0];
         // Create the term
-        $term = str_replace("'", "", $query["name"]) . " " . str_replace("'", "", $query["artist"]) . " " . str_replace("'", "", $query["album"]);
+        $term = str_replace("'", "", $query["name"]) . " " . str_replace("'", "", $query["artist"]);
 
         // Create our data
         $data = [
@@ -267,6 +268,8 @@ class Tidal
             return json_decode($resp->body())->tracks->items[0];
         } catch (\Exception) {
             // If there wasn't anything we just return null
+            error_log("Didn't find song.");
+            error_log(json_encode($query));
             return null;
         }
     }
@@ -290,13 +293,15 @@ class Tidal
         $createResp = json_decode(Http::withHeaders($this->header)->put($url)->body());
 
         // Get the playlist ID
-        $playlistId = $createResp->id;
+        $playlistId = $createResp->data->uuid;
 
         // Cut up that shit...chunky chunky
         $chunks = array_chunk($tracks, 50);
 
         // Set the add items url
         $url = "$this->baseUrlv1/playlists/$playlistId/items";
+
+        $this->header["If-None-Match"] = "*";
 
         // For each chunk...
         foreach ($chunks as $chunk) {
@@ -305,11 +310,13 @@ class Tidal
 
             // Create the data array
             $data = [
-                "trackIds" => $chunkStr
+                "trackIds" => $chunkStr,
+                "onArtifactNotFound" => "FAIL",
+                "onDupes" => "FAIL"
             ];
 
             // Post that shit
-            Http::withHeaders($this->header)->post($url, $data);
+            Http::withHeaders($this->header)->asForm()->post($url, $data);
         }
 
         // Return the data about the playlist
