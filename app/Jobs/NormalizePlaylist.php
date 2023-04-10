@@ -227,13 +227,17 @@ class NormalizePlaylist
 
     private function fromTidal(): array
     {
-        $tidalPlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id);
+        $tidalPlaylist = $this->isLibrary ? $this->fromApi->getLibrary() : $this->fromApi->getPlaylist($this->swap->from_playlist_id);
 
         $this->swap->total_songs = count($tidalPlaylist);
         $this->swap->save();
 
         // Loop through each song
         foreach ($tidalPlaylist as $tidalSong) {
+            if ($this->isLibrary) {
+                $tidalSong = $tidalSong->item;
+            }
+
             try {
                 // See if we have the song
                 $song = Song::getById(MusicService::TIDAL, $tidalSong->id);
@@ -263,7 +267,7 @@ class NormalizePlaylist
         }
 
         // Get the name for the playlist
-        $name = $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
+        $name = $this->isLibrary ? "Library" : $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
 
         // Return the results
         return [
