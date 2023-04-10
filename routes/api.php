@@ -75,6 +75,7 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::get("/tidal/me/playlists", [TidalController::class, "playlists"]);
     Route::get("/tidal/me/playlists/{id}", [TidalController::class, "playlist"]);
+    Route::get("/tidal/me/library", [TidalController::class, "library"]);
 
     /*
      * Swap routes

@@ -82,10 +82,17 @@ class TidalController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function playlist(Request $request, $id)
+    public function playlist(Request $request, $id): JsonResponse
     {
         $tidal = new Tidal($request->user());
 
         return response()->json($tidal->getPlaylist($id));
+    }
+
+    public function library(Request $request): JsonResponse
+    {
+        $tidal = new Tidal($request->user());
+
+        return response()->json($tidal->getLibrary());
     }
 }
