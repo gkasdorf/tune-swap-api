@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Tidal;
 
 use App\Http\Controllers\Controller;
 use App\Tidal\Tidal;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TidalController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return array
+     */
     public function authUrl(Request $request)
     {
         return [
@@ -17,7 +22,11 @@ class TidalController extends Controller
         ];
     }
 
-    public function auth(Request $request)
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function auth(Request $request): array
     {
         $user = $request->user();
 
@@ -57,17 +66,33 @@ class TidalController extends Controller
         ];
     }
 
-    public function getUserPlaylists(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function playlists(Request $request): JsonResponse
     {
         $tidal = new Tidal($request->user());
 
         return response()->json($tidal->getUserPlaylists());
     }
 
-    public function getPlaylist(Request $request, $id)
+    /**
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
+    public function playlist(Request $request, $id): JsonResponse
     {
         $tidal = new Tidal($request->user());
 
         return response()->json($tidal->getPlaylist($id));
+    }
+
+    public function library(Request $request): JsonResponse
+    {
+        $tidal = new Tidal($request->user());
+
+        return response()->json($tidal->getLibrary());
     }
 }

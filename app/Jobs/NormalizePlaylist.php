@@ -28,6 +28,8 @@ class NormalizePlaylist
     private mixed $fromApi;
     private mixed $toApi;
 
+    private bool $isLibrary = false;
+
     private array $songsByServiceId;
     private int $playlistId;
 
@@ -49,6 +51,10 @@ class NormalizePlaylist
         $this->toService = $toService;
         $this->swap = $swap;
         $this->user = $user;
+
+        if ($this->swap->from_playlist_id === "library") {
+            $this->isLibrary = true;
+        }
 
         // Create arrays
         $this->songsByServiceId = [];
@@ -78,16 +84,24 @@ class NormalizePlaylist
         // Create a playlist
         $this->savePlaylist();
 
-        // See which service we are coming from
-        if ($this->fromService == MusicService::SPOTIFY)
-            return $this->fromSpotify();
-        else if ($this->fromService == MusicService::APPLE_MUSIC) {
-            return $this->fromAppleMusic();
-        } else if ($this->fromService == MusicService::TIDAL) {
-            return $this->fromTidal();
+        switch ($this->fromService) {
+            case MusicService::SPOTIFY:
+            {
+                return $this->fromSpotify();
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                return $this->fromAppleMusic();
+            }
+            case MusicService::TIDAL:
+            {
+                return $this->fromTidal();
+            }
+            default:
+            {
+                return null;
+            }
         }
-
-        return null;
     }
 
     /**
@@ -97,7 +111,7 @@ class NormalizePlaylist
     private function fromSpotify(): array
     {
         // Get the playlist from Spotify
-        $spotifyPlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id);
+        $spotifyPlaylist = $this->isLibrary ? $this->fromApi->getLibrary() : $this->fromApi->getPlaylist($this->swap->from_playlist_id);
 
         $this->swap->total_songs = count($spotifyPlaylist);
         $this->swap->save();
@@ -132,7 +146,7 @@ class NormalizePlaylist
         }
 
         // Get the name for the playlist
-        $name = $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
+        $name = $this->isLibrary ? "Library" : $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
 
         // Return the results
         return [
@@ -148,7 +162,9 @@ class NormalizePlaylist
     private function fromAppleMusic(): array
     {
         // Determine if this is a user playlist or a catalog playlist. Get the playlist
-        if (str_contains($this->swap->from_playlist_id, "p.")) {
+        if ($this->isLibrary) {
+            $applePlaylist = $this->fromApi->getLibrary()->data;
+        } else if (str_contains($this->swap->from_playlist_id, "p.")) {
             $applePlaylist = $this->fromApi->getUserPlaylist($this->swap->from_playlist_id)->data;
         } else {
             $applePlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id)->data;
@@ -198,8 +214,9 @@ class NormalizePlaylist
             }
         }
 
+        //TODO If it ISNT a user playlist...
         // Get the name for the playlist
-        $name = $this->fromApi->getUserPlaylistName($this->swap->from_playlist_id);
+        $name = $this->isLibrary ? "Library" : $this->fromApi->getUserPlaylistName($this->swap->from_playlist_id);
 
         // Return the results
         return [
@@ -210,13 +227,17 @@ class NormalizePlaylist
 
     private function fromTidal(): array
     {
-        $tidalPlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id);
+        $tidalPlaylist = $this->isLibrary ? $this->fromApi->getLibrary() : $this->fromApi->getPlaylist($this->swap->from_playlist_id);
 
         $this->swap->total_songs = count($tidalPlaylist);
         $this->swap->save();
 
         // Loop through each song
         foreach ($tidalPlaylist as $tidalSong) {
+            if ($this->isLibrary) {
+                $tidalSong = $tidalSong->item;
+            }
+
             try {
                 // See if we have the song
                 $song = Song::getById(MusicService::TIDAL, $tidalSong->id);
@@ -246,7 +267,7 @@ class NormalizePlaylist
         }
 
         // Get the name for the playlist
-        $name = $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
+        $name = $this->isLibrary ? "Library" : $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
 
         // Return the results
         return [

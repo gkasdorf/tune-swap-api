@@ -22,7 +22,7 @@ class SpotifyController extends Controller
         return response()->json($spotify->getPlaylist($id));
     }
 
-    public function tracks(Request $request)
+    public function library(Request $request)
     {
         $spotify = new Spotify($request->user());
 

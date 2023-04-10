@@ -55,11 +55,12 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/spotify/me/playlists", [SpotifyController::class, "myPlaylists"]);
     Route::get("/spotify/me/playlist/{id}", [SpotifyController::class, "playlist"]);
     Route::get("/spotify/playlist/{id}", [SpotifyController::class, "playlist"]);
-    Route::get("/spotify/tracks", [SpotifyController::class, "tracks"]);
+    Route::get("/spotify/me/library", [SpotifyController::class, "library"]);
 
     /*
      * Apple Music routes
      */
+    Route::get("/applemusic/me/library", [AppleMusicController::class, "library"]);
     Route::get("/applemusic/playlist/{id}", [AppleMusicController::class, "playlist"]);
     Route::get("/applemusic/me/playlist/{id}", [AppleMusicController::class, "userPlaylist"]);
     Route::get("/applemusic/me/playlist/{id}/name", [AppleMusicController::class, "userPlaylistName"]);
@@ -72,8 +73,9 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/tidal/authUrl", [TidalController::class, "authUrl"]);
     Route::post("/tidal/auth", [TidalController::class, "auth"]);
 
-    Route::get("/tidal/me/playlists", [TidalController::class, "getUserPlaylists"]);
-    Route::get("/tidal/me/playlists/{id}", [TidalController::class, "getPlaylist"]);
+    Route::get("/tidal/me/playlists", [TidalController::class, "playlists"]);
+    Route::get("/tidal/me/playlists/{id}", [TidalController::class, "playlist"]);
+    Route::get("/tidal/me/library", [TidalController::class, "library"]);
 
     /*
      * Swap routes

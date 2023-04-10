@@ -22,9 +22,18 @@ class Tidal
 
     private User $user;
 
+    /**
+     * Pass in the user and the token (default null, will get it from DB if not supplied)
+     * @param User $user
+     * @param $token
+     */
     public function __construct(User $user, $token = null)
     {
         $this->user = $user;
+
+        if ($this->user->tidal_expiration <= time() - 600) {
+            $this->user->tidal_token = self::refresh($user);
+        }
 
         if (!empty($user->tidal_token)) {
             $this->header["Authorization"] = "Bearer " . $user->tidal_token;
@@ -50,6 +59,11 @@ class Tidal
      *
      */
 
+    /**
+     * Returns the current Tidal auth url
+     * @return array
+     * @throws \Exception
+     */
     public static function createAuthUrl(): array
     {
         // Generate a challenge code and verifier
@@ -88,7 +102,13 @@ class Tidal
         ];
     }
 
-    public static function auth(string $code, string $codeVerifier)
+    /**
+     * Performs authentication with Tidal
+     * @param string $code
+     * @param string $codeVerifier
+     * @return mixed
+     */
+    public static function auth(string $code, string $codeVerifier): mixed
     {
         // Create our data
         $data = [
@@ -102,6 +122,40 @@ class Tidal
 
         // Return the auth response
         return json_decode(Http::acceptJson()->post(self::$tokenUrl, $data)->body());
+    }
+
+    /**
+     * Refreshes the Tidal token and returns the new token
+     * @param User $user
+     * @return string|null
+     */
+    public static function refresh(User $user): ?string
+    {
+        $url = self::$tokenUrl;
+
+        $data = [
+            "client_id" => self::$clientId,
+            "refresh_token" => $user->tidal_refresh_token,
+            "grant_type" => "refresh_token",
+            "scope" => "r_usr w_usr"
+        ];
+
+        $response = Http::acceptJson()->asForm()->post($url, $data);
+
+        if ($response->clientError()) {
+            return null;
+        }
+
+        $result = json_decode($response->body());
+
+        error_log(json_encode($result));
+
+        $user->tidal_token = $result->access_token;
+        $user->tidal_expiration = $result->expires_in + time();
+
+        $user->save();
+
+        return $user->tidal_token;
     }
 
     /**
@@ -127,6 +181,11 @@ class Tidal
         return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
     }
 
+    /**
+     * Get a Tidal playlist by ID
+     * @param string $id
+     * @return array
+     */
     public function getPlaylist(string $id): array
     {
         // Create our data
@@ -274,17 +333,21 @@ class Tidal
         }
     }
 
-    public function createPlaylist(string $name, array $tracks): object
+    /**
+     * Create a playlist. Will return the data for the newly created playlist.
+     * @param string $name
+     * @param array $tracks
+     * @return mixed
+     */
+    public function createPlaylist(string $name, array $tracks): mixed
     {
         // Set the create data
-        $data = [
+        $data = self::addCountryCode([
             "name" => $name,
             "description" => "Transferred with TuneSwap",
             "isPublic" => false,
-            "folderId" => "root",
-            "countryCode" => "US",
-            "locale" => "en_US"
-        ];
+            "folderId" => "root"
+        ]);
 
         // Set the URL for create
         $url = "$this->baseUrlv2/my-collection/playlists/folders/create-playlist?" . http_build_query($data);

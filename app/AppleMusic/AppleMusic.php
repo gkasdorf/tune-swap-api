@@ -63,16 +63,16 @@ class AppleMusic
         $url = "$this->baseUrlMe/library/playlists/$id/tracks";
 
         $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
-        $data = clone($response);
+        $tracks = clone($response);
 
         while (isset($response->next)) {
             $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($this->rootUrl . $response->next)->body());
 
-            $data->data = array_merge($data->data, $response->data);
+            $tracks->data = array_merge($tracks->data, $response->data);
         }
 
         // REturn the response
-        return $data;
+        return $tracks;
     }
 
     /**
@@ -97,6 +97,21 @@ class AppleMusic
         $url = "$this->baseUrlMe/library/playlists/$id";
 
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
+    }
+
+    public function getLibrary()
+    {
+        $data = [
+            "limit" => 100,
+            "offset" => 0,
+            "include" => "library-songs"
+        ];
+
+        $url = "$this->baseUrlMe/library/songs";
+
+        $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+
+        return $response;
     }
 
     /**
