@@ -28,6 +28,8 @@ class NormalizePlaylist
     private mixed $fromApi;
     private mixed $toApi;
 
+    private bool $isLibrary = false;
+
     private array $songsByServiceId;
     private int $playlistId;
 
@@ -49,6 +51,10 @@ class NormalizePlaylist
         $this->toService = $toService;
         $this->swap = $swap;
         $this->user = $user;
+
+        if ($this->swap->from_playlist_id === "library") {
+            $this->isLibrary = true;
+        }
 
         // Create arrays
         $this->songsByServiceId = [];
@@ -78,16 +84,24 @@ class NormalizePlaylist
         // Create a playlist
         $this->savePlaylist();
 
-        // See which service we are coming from
-        if ($this->fromService == MusicService::SPOTIFY)
-            return $this->fromSpotify();
-        else if ($this->fromService == MusicService::APPLE_MUSIC) {
-            return $this->fromAppleMusic();
-        } else if ($this->fromService == MusicService::TIDAL) {
-            return $this->fromTidal();
+        switch ($this->fromService) {
+            case MusicService::SPOTIFY:
+            {
+                return $this->fromSpotify();
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                return $this->fromAppleMusic();
+            }
+            case MusicService::TIDAL:
+            {
+                return $this->fromTidal();
+            }
+            default:
+            {
+                return null;
+            }
         }
-
-        return null;
     }
 
     /**
@@ -97,7 +111,7 @@ class NormalizePlaylist
     private function fromSpotify(): array
     {
         // Get the playlist from Spotify
-        $spotifyPlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id);
+        $spotifyPlaylist = $this->isLibrary ? $this->fromApi->getLibrary() : $this->fromApi->getPlaylist($this->swap->from_playlist_id);
 
         $this->swap->total_songs = count($spotifyPlaylist);
         $this->swap->save();
