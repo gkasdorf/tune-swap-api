@@ -57,14 +57,14 @@ class TidalController extends Controller
         ];
     }
 
-    public function getUserPlaylists(Request $request)
+    public function playlists(Request $request)
     {
         $tidal = new Tidal($request->user());
 
         return response()->json($tidal->getUserPlaylists());
     }
 
-    public function getPlaylist(Request $request, $id)
+    public function playlist(Request $request, $id)
     {
         $tidal = new Tidal($request->user());
 
