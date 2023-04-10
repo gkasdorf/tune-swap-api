@@ -22,7 +22,7 @@ class AppleMusicController extends Controller
     {
         $appleMusic = new AppleMusic($request->user());
 
-        return response()->json($appleMusic->getUserLibrary());
+        return response()->json($appleMusic->getLibrary());
     }
 
     public function userPlaylist(Request $request): JsonResponse

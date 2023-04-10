@@ -162,7 +162,9 @@ class NormalizePlaylist
     private function fromAppleMusic(): array
     {
         // Determine if this is a user playlist or a catalog playlist. Get the playlist
-        if (str_contains($this->swap->from_playlist_id, "p.")) {
+        if ($this->isLibrary) {
+            $applePlaylist = $this->fromApi->getLibrary()->data;
+        } else if (str_contains($this->swap->from_playlist_id, "p.")) {
             $applePlaylist = $this->fromApi->getUserPlaylist($this->swap->from_playlist_id)->data;
         } else {
             $applePlaylist = $this->fromApi->getPlaylist($this->swap->from_playlist_id)->data;
@@ -212,8 +214,9 @@ class NormalizePlaylist
             }
         }
 
+        //TODO If it ISNT a user playlist...
         // Get the name for the playlist
-        $name = $this->fromApi->getUserPlaylistName($this->swap->from_playlist_id);
+        $name = $this->isLibrary ? "Library" : $this->fromApi->getUserPlaylistName($this->swap->from_playlist_id);
 
         // Return the results
         return [

@@ -99,7 +99,7 @@ class AppleMusic
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
     }
 
-    public function getUserLibrary()
+    public function getLibrary()
     {
         $data = [
             "limit" => 100,
