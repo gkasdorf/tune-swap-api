@@ -146,7 +146,7 @@ class NormalizePlaylist
         }
 
         // Get the name for the playlist
-        $name = $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
+        $name = $this->isLibrary ? "Library" : $this->fromApi->getPlaylistName($this->swap->from_playlist_id);
 
         // Return the results
         return [
