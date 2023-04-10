@@ -60,6 +60,7 @@ Route::middleware("auth:sanctum")->group(function () {
     /*
      * Apple Music routes
      */
+    Route::get("/applemusic/me/library", [AppleMusicController::class, "library"]);
     Route::get("/applemusic/playlist/{id}", [AppleMusicController::class, "playlist"]);
     Route::get("/applemusic/me/playlist/{id}", [AppleMusicController::class, "userPlaylist"]);
     Route::get("/applemusic/me/playlist/{id}/name", [AppleMusicController::class, "userPlaylistName"]);
