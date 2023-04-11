@@ -36,6 +36,6 @@ class AppleMusicAuthController extends Controller
             return redirect(env("CORS_URL") . "/app/applemusic/auth?complete=true");
         }
 
-        return redirect("exp://127.0.0.1:19000/?success=true");
+        return redirect("tuneswap://");
     }
 }
