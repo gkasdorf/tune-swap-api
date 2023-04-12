@@ -11,7 +11,7 @@ class SpotifyAuthentication
     public static function getUrl($customUrl = null)
     {
         // Set the scopes we want
-        $scopes = "user-read-email playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private user-library-modify";
+        $scopes = "user-read-email playlist-read-private user-library-read playlist-modify-private user-library-modify";
 
         if ($customUrl) {
             $redirect = $customUrl;
