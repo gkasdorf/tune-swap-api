@@ -59,4 +59,52 @@ class User extends Authenticatable
     {
         return isset($this->tidal_token);
     }
+
+    public function iosNotificationsEnabled(): bool
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        if (!$tokens || count($tokens) < 1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function iosDeviceTokens(): ?array
+    {
+        if ($this->ios_device_tokens) {
+            return json_decode($this->ios_device_tokens);
+        }
+
+        return null;
+    }
+
+    public function addIosDeviceToken(string $token): void
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        if ($tokens && in_array($token, $tokens)) {
+            return;
+        }
+
+        $tokens[] = $token;
+
+        $this->ios_device_tokens = json_encode($tokens);
+        $this->save();
+    }
+
+    public function removeIosDeviceToken(string $token): void
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        $key = array_search($token, $tokens);
+
+        if ($key !== false) {
+            unset($tokens[$key]);
+        }
+
+        $this->ios_device_tokens = json_encode($tokens);
+        $this->save();
+    }
 }

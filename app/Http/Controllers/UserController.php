@@ -186,4 +186,33 @@ class UserController extends Controller
             "has" => $request->user()->hasTidal()
         ];
     }
+
+    public function enableIosNotifications(Request $request)
+    {
+        $request->user()->addIosDeviceToken($request->token);
+
+        return [
+            "code" => 1000,
+            "message" => "Notifications enabled."
+        ];
+    }
+
+    public function disableIosNotifications(Request $request)
+    {
+        $request->user()->removeIosDeviceToken($request->token);
+
+        return [
+            "code" => 1000,
+            "message" => "Notifications disabled."
+        ];
+    }
+
+    public function iosNotificationsEnabled(Request $request)
+    {
+        return [
+            "code" => 1000,
+            "message" => "See `enabled`",
+            "enabled" => $request->user()->iosNotificationsEnabled()
+        ];
+    }
 }
