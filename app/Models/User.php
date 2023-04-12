@@ -45,18 +45,76 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function hasSpotify()
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function hasSpotify(): bool
     {
         return isset($this->spotify_token);
     }
 
-    public function hasAppleMusic()
+    public function hasAppleMusic(): bool
     {
         return isset($this->apple_music_token);
     }
 
-    public function hasTidal()
+    public function hasTidal(): bool
     {
         return isset($this->tidal_token);
+    }
+
+    public function iosNotificationsEnabled(): bool
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        if (!$tokens || count($tokens) < 1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function iosDeviceTokens(): ?array
+    {
+        if ($this->ios_device_tokens) {
+            return json_decode($this->ios_device_tokens);
+        }
+
+        return null;
+    }
+
+    public function addIosDeviceToken(string $token): void
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        if ($tokens && in_array($token, $tokens)) {
+            return;
+        }
+
+        $tokens[] = $token;
+
+        $this->ios_device_tokens = json_encode($tokens);
+        $this->save();
+    }
+
+    public function removeIosDeviceToken(string $token): void
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        $key = array_search($token, $tokens);
+
+        if ($key !== false) {
+            unset($tokens[$key]);
+        }
+
+        $this->ios_device_tokens = json_encode($tokens);
+        $this->save();
+    }
+
+    public function routeNotificationForApn()
+    {
+        return $this->iosDeviceTokens();
     }
 }

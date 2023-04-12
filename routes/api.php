@@ -42,6 +42,10 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/user/has/applemusic", [UserController::class, "hasAppleMusic"]);
     Route::get("/user/has/tidal", [UserController::class, "hasTidal"]);
 
+    Route::get("/user/notifications/ios/enabled", [UserController::class, "iosNotificationsEnabled"]);
+    Route::get("/user/notifications/ios/enable", [UserController::class, "enableIosNotifications"]);
+    Route::get("/user/notifications/ios/disable", [UserController::class, "disableIosNotifications"]);
+
     /*
      * Spotify auth routes
      */

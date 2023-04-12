@@ -34,7 +34,6 @@ class AppleMusic
             $this->header["Music-User-Token"] = "$user->apple_music_token";
         } // Else we will use the token passed
         else if (!empty($token)) {
-            error_log("we are here");
             $this->header["Music-User-Token"] = $token;
         }
     }

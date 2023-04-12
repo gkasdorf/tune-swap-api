@@ -26,6 +26,20 @@ class Swap extends Model
         return Swap::where("user_id", $userId)->orderBy('id', 'DESC')->skip($offset)->take($limit)->get();
     }
 
+    public function getPlaylistName(): string
+    {
+        return $this->playlist_name;
+    }
+
+    public function getToService($string = false): MusicService|string
+    {
+        if ($string) {
+            return $this->to_service;
+        }
+
+        return MusicService::from($this->to_service);
+    }
+
     protected $casts = [
         "status" => SwapStatus::class,
         "fromService" => MusicService::class,

@@ -7,6 +7,7 @@ use App\Http\MusicService;
 use App\Models\Swap;
 use App\Models\SwapStatus;
 use App\Models\User;
+use App\Notifications\SwapComplete;
 use App\Spotify\Spotify;
 use App\Tidal\Tidal;
 use Illuminate\Bus\Queueable;
@@ -69,6 +70,10 @@ class ProcessSwap implements ShouldQueue
         // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
         $this->swap->save();
+        
+        if ($this->user->iosNotificationsEnabled()) {
+            $this->user->notify(new SwapComplete($this->swap));
+        }
     }
 
     public function failed(\Exception $exception)
