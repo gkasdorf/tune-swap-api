@@ -36,7 +36,7 @@ return [
             'secret' => env('PUSHER_APP_SECRET'),
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                'host' => env('PUSHER_HOST') ?: 'api-'.env('PUSHER_APP_CLUSTER', 'mt1').'.pusher.com',
+                'host' => env('PUSHER_HOST') ?: 'api-' . env('PUSHER_APP_CLUSTER', 'mt1') . '.pusher.com',
                 'port' => env('PUSHER_PORT', 443),
                 'scheme' => env('PUSHER_SCHEME', 'https'),
                 'encrypted' => true,
@@ -64,6 +64,15 @@ return [
         'null' => [
             'driver' => 'null',
         ],
+
+        'apn' => [
+            'key_id' => env('APN_KEY_ID'),
+            'team_id' => env('APN_TEAM_ID'),
+            'app_bundle_id' => env('APN_BUNDLE_ID'),
+            'private_key_path' => env('APN_PRIVATE_KEY_PATH'),
+            'private_key_secret' => null,
+            'production' => env('APN_PRODUCTION', true)
+        ]
 
     ],
 

@@ -45,17 +45,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function hasSpotify()
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function hasSpotify(): bool
     {
         return isset($this->spotify_token);
     }
 
-    public function hasAppleMusic()
+    public function hasAppleMusic(): bool
     {
         return isset($this->apple_music_token);
     }
 
-    public function hasTidal()
+    public function hasTidal(): bool
     {
         return isset($this->tidal_token);
     }
@@ -106,5 +111,10 @@ class User extends Authenticatable
 
         $this->ios_device_tokens = json_encode($tokens);
         $this->save();
+    }
+
+    public function routeNotificationForApn()
+    {
+        return $this->iosDeviceTokens();
     }
 }
