@@ -66,7 +66,7 @@ class SwapController extends Controller
             "message" => "Selected swaps successfully",
             "data" => [
                 "total" => count($swaps),
-                "swaps" => count($swaps) > 0 ? $swaps : null
+                "swaps" => count($swaps) > 0 ? $swaps : []
             ]
         ];
     }
