@@ -25,9 +25,8 @@ class SwapComplete extends \Illuminate\Notifications\Notification
     public function toApn($notifiable)
     {
         return ApnMessage::create()
-            ->badge(1)
             ->title("Swap Complete!")
-            ->body("Great news " . $notifiable->getName() . "! " . $this->swap->getPlaylistName() . " has finished moving over
-            to your " . $this->swap->getToService(true) . " account. Go ahead, check it out!");
+            ->body("Great news " . $notifiable->getName() . "! " . $this->swap->getPlaylistName() . " has finished moving over to your " . $this->swap->getToService(true) . " account. Go ahead, check it out!")
+            ->sound("default");
     }
 }
