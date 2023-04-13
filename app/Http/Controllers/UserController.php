@@ -100,8 +100,6 @@ class UserController extends Controller
 
         if (!Hash::check($password, $user->password)) {
             return [
-                "sent" => $password,
-                "hash" => $user->password,
                 "code" => 2001,
                 "message" => "Password is incorrect"
             ];
