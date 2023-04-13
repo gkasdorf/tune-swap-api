@@ -36,19 +36,32 @@
             });
         }
     </script>
+    <link rel="stylesheet" href="/normalize.css"/>
+    <link rel="stylesheet" href="/skeleton.css"/>
 </head>
 
 <body>
 <div style="text-align: center;">
-    <h1>TuneSwap API Apple Music Authentication</h1>
+    <br/>
+    <br/>
+    <img src="/AppleMusicLogo.png" style="height: 5em;"/>
+    <br/>
+    <br/>
+    <h5>Click below to be redirected to Apple for authentication with Apple Music. You are agreeing to allow TuneSwap to
+        access information in Apple Music account.</h5>
 
-    <h3>Please click below to authenticate with Apple Music</h3>
-
-    <button id="apple-music-authorize" onclick="onButtonClick()" class="loginButton">Sign In</button>
+    <a href="#" id="apple-music-authorize" onclick="onButtonClick()"><img src="/applesignin.png"
+                                                                          style="height: 3em;"/></a>
+    {{--    <button id="apple-music-authorize" onclick="onButtonClick()" class="button button-primary">Sign In</button>--}}
 </div>
 </body>
 
 <style>
+    body {
+        background: rgb(208, 208, 224);
+        background: radial-gradient(circle, rgba(208, 208, 224, 1) 29%, rgba(181, 162, 242, 1) 100%);
+    }
+
     .loginButton {
         background: #5E5DF0;
         border-radius: 999px;
