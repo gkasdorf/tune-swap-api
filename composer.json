@@ -8,6 +8,7 @@
         "php": "^8.1",
         "ext-openssl": "*",
         "aerni/laravel-spotify": "^2.1",
+        "exolnet/laravel-heartbeat": "^1.9",
         "guzzlehttp/guzzle": "^7.5",
         "laravel-notification-channels/apn": "^5.0",
         "laravel/framework": "^10.0",

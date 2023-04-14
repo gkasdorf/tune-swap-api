@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "67ef3396bb600203407b0c79f5da33cc",
+    "content-hash": "c4099eb163bfe51ce172f908ecd47d74",
     "packages": [
         {
             "name": "aerni/laravel-spotify",
@@ -584,6 +584,82 @@
                 }
             ],
             "time": "2023-01-14T14:17:03+00:00"
+        },
+        {
+            "name": "exolnet/laravel-heartbeat",
+            "version": "v1.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eXolnet/laravel-heartbeat.git",
+                "reference": "d08576823d3a9f697f164e274ab0cc764b120a07"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eXolnet/laravel-heartbeat/zipball/d08576823d3a9f697f164e274ab0cc764b120a07",
+                "reference": "d08576823d3a9f697f164e274ab0cc764b120a07",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^9.0|^10.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.0",
+                "laravel/pint": "^1.2",
+                "mockery/mockery": "^1.4",
+                "orchestra/testbench": "^7.0|^8.0",
+                "phpunit/phpunit": "^9.3.3",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "Required to send Http signals (~6.0)."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Exolnet\\Heartbeat\\HeartbeatServiceProvider"
+                    ],
+                    "aliases": {
+                        "Skeleton": "Exolnet\\Heartbeat\\HeartbeatFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Exolnet\\Heartbeat\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexandre D'Eschambeault",
+                    "email": "adeschambeault@exolnet.com"
+                },
+                {
+                    "name": "Pat Gagnon-Renaud",
+                    "email": "pgrenaud@exolnet.com"
+                },
+                {
+                    "name": "Simon Gaudreau",
+                    "email": "sgaudreau@exolnet.com"
+                }
+            ],
+            "description": "Periodically schedule a job to send a heartbeat to a monitoring system.",
+            "homepage": "https://github.com/eXolnet/laravel-heartbeat",
+            "keywords": [
+                "exolnet",
+                "laravel",
+                "laravel-heartbeat"
+            ],
+            "support": {
+                "issues": "https://github.com/eXolnet/laravel-heartbeat/issues",
+                "source": "https://github.com/eXolnet/laravel-heartbeat/tree/v1.9.0"
+            },
+            "time": "2023-03-09T20:16:33+00:00"
         },
         {
             "name": "fruitcake/php-cors",
