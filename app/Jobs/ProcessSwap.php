@@ -58,19 +58,19 @@ class ProcessSwap implements ShouldQueue
         // Figure out where we are sending the playlist
         if (MusicService::from($this->swap->to_service) == MusicService::SPOTIFY) {
             $api = new Spotify($this->user);
-            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"]);
+            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
         } else if (MusicService::from($this->swap->to_service) == MusicService::APPLE_MUSIC) {
             $api = new AppleMusic($this->user);
-            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"]);
+            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
         } else if (MusicService::from($this->swap->to_service) == MusicService::TIDAL) {
             $api = new Tidal($this->user);
-            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"]);
+            $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
         }
 
         // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
         $this->swap->save();
-        
+
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
         }

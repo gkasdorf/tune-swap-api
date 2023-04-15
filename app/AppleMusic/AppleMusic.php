@@ -193,13 +193,13 @@ class AppleMusic
      * @param array $tracks
      * @return object
      */
-    public function createPlaylist(string $name, array $tracks): object
+    public function createPlaylist(string $name, array $tracks, string $description = ""): object
     {
         // Create our data. This is gonna be json (fucking apple lol)
         $data = [
             "attributes" => [
                 "name" => $name,
-                "description" => "Transferred with TuneSwap"
+                "description" => $description
             ],
             "relationships" => [
                 "tracks" => [

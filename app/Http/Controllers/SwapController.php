@@ -30,6 +30,7 @@ class SwapController extends Controller
         $swap->from_playlist_id = $request->playlistId;
         $swap->playlist_name = $request->playlistName;
         $swap->status = SwapStatus::CREATED;
+        $swap->description = $request->playlistDescription;
 
         // Save the swap
         $swap->save();

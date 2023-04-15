@@ -168,12 +168,12 @@ class Spotify
      * @param array $tracks Array of all the track IDs to add
      * @return object The result of the createPlaylist call
      */
-    public function createPlaylist(string $name, array $tracks): object
+    public function createPlaylist(string $name, array $tracks, ?string $description = ""): object
     {
         // Create our data
         $data = [
             "name" => $name,
-            "description" => "Transferred with TuneSwap",
+            "description" => $description,
             "public" => false
         ];
 

@@ -339,12 +339,13 @@ class Tidal
      * @param array $tracks
      * @return mixed
      */
-    public function createPlaylist(string $name, array $tracks): mixed
+    public function createPlaylist(string $name, array $tracks, string $description = ""): mixed
     {
+
         // Set the create data
         $data = self::addCountryCode([
             "name" => $name,
-            "description" => "Transferred with TuneSwap",
+            "description" => $description,
             "isPublic" => false,
             "folderId" => "root"
         ]);
