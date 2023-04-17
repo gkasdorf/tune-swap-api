@@ -2,10 +2,10 @@
     <title>TuneSwap API Apple Music Authentication</title>
     <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
 
-    <meta name="apple-music-developer-token" content="{{ env("APPLE_MUSIC_TOKEN") }}">
-    <meta name="apple-music-app-name" content="TuneSwap">
-    <meta name="apple-music-app-build" content="">
-    <meta name="apple-music-app-icon" content="https://tuneswap.app/logo192.png">
+    <meta name="apple-music-developer-token" content="{{ env("APPLE_MUSIC_TOKEN") }}"/>
+    <meta name="apple-music-app-name" content="TuneSwap"/>
+    <meta name="apple-music-app-build" content=""/>
+    <meta name="apple-music-app-icon" content="https://tuneswap.app/logo192.png"/>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -21,7 +21,8 @@
                 developerToken: "{{ env("APPLE_MUSIC_TOKEN") }}",
                 app: {
                     name: "TuneSwap",
-                    build: ""
+                    build: "",
+                    icon: "https://tuneswap.app/logo192.png"
                 }
             });
         }
