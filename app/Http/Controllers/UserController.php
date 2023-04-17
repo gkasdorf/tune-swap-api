@@ -213,4 +213,21 @@ class UserController extends Controller
             "enabled" => $request->user()->iosNotificationsEnabled()
         ];
     }
+
+    public function delete(Request $request)
+    {
+        if (!$request->password || !Hash::check($request->password, $request->user()->password)) {
+            return [
+                "code" => 2001,
+                "message" => "Password is incorrect"
+            ];
+        }
+
+        $request->user()->delete();
+
+        return [
+            "code" => 1000,
+            "message" => "User deleted."
+        ];
+    }
 }

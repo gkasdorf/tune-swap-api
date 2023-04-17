@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\MusicService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Swap extends Model
 {
@@ -38,6 +39,11 @@ class Swap extends Model
         }
 
         return MusicService::from($this->to_service);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     protected $casts = [

@@ -46,6 +46,8 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/user/notifications/ios/enable", [UserController::class, "enableIosNotifications"]);
     Route::get("/user/notifications/ios/disable", [UserController::class, "disableIosNotifications"]);
 
+    Route::post("/user/delete", [UserController::class, "delete"]);
+
     /*
      * Spotify auth routes
      */
