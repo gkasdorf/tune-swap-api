@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlaylistSong extends Model
 {
@@ -22,5 +23,10 @@ class PlaylistSong extends Model
         ]);
 
         $link->save();
+    }
+
+    public function playlist(): BelongsTo
+    {
+        return $this->belongsTo(Playlist::class);
     }
 }
