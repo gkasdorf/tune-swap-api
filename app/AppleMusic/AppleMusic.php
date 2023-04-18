@@ -81,7 +81,7 @@ class AppleMusic
     public function getUserPlaylists(): object
     {
         // Create the url
-        $url = "$this->baseUrlMe/library/playlists";
+        $url = "$this->baseUrlMe/library/playlists?limit=50";
 
         // Return the response
         return json_decode(Http::withHeaders($this->header)->get($url)->body());
