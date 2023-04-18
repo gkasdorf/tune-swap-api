@@ -86,12 +86,15 @@ class AppleMusic
 
         // Return the response
         $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
-
+        
         $playlists = [];
 
         foreach ($resp->data as $playlist) {
             if (!$playlist->attributes->description) {
-                $playlist->attributes["description"]["standard"] = "";
+                error_log("this happened.");
+                $playlist->attributes["description"] = [
+                    "standard" => "No description provided."
+                ];
             }
         }
 
