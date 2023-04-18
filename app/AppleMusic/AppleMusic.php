@@ -82,9 +82,20 @@ class AppleMusic
     {
         // Create the url
         $url = "$this->baseUrlMe/library/playlists?limit=50";
+        error_log("We are here.");
 
         // Return the response
-        return json_decode(Http::withHeaders($this->header)->get($url)->body());
+        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
+
+        $playlists = [];
+
+        foreach ($resp->data as $playlist) {
+            if (!$playlist->attributes->description) {
+                $playlist->attributes["description"]["standard"] = "";
+            }
+        }
+
+        return $resp;
     }
 
     /**
