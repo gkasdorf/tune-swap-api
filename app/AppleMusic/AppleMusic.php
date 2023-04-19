@@ -82,23 +82,21 @@ class AppleMusic
     {
         // Create the url
         $url = "$this->baseUrlMe/library/playlists?limit=50";
-        error_log("We are here.");
 
         // Return the response
-        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
-        
-        $playlists = [];
+        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body(), true);
 
-        foreach ($resp->data as $playlist) {
-            if (!$playlist->attributes->description) {
-                error_log("this happened.");
-                $playlist->attributes["description"] = [
+        // a foreach loop to check each item in an array to see if it has a description. set it if it doesnt
+
+        for ($i = 0; $i < count($resp["data"]) - 1; $i++) {
+            if (!isset($resp["data"][$i]["attributes"]["description"])) {
+                $resp["data"][$i]["attributes"]["description"] = [
                     "standard" => "No description provided."
                 ];
             }
         }
 
-        return $resp;
+        return (object)$resp;
     }
 
     /**
