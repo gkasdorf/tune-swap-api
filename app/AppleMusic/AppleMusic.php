@@ -81,20 +81,44 @@ class AppleMusic
     public function getUserPlaylists(): object
     {
         // Create the url
-        $url = "$this->baseUrlMe/library/playlists?limit=50";
+        $url = "$this->baseUrlMe/library/playlists";
 
         // Return the response
         $resp = json_decode(Http::withHeaders($this->header)->get($url)->body(), true);
 
-        // a foreach loop to check each item in an array to see if it has a description. set it if it doesnt
+        // a foreach loop to check each item in an array to see if it has a description.
+        // Get the initial playlists
+        $playlists = $resp["data"];
 
-        for ($i = 0; $i < count($resp["data"]) - 1; $i++) {
-            if (!isset($resp["data"][$i]["attributes"]["description"])) {
-                $resp["data"][$i]["attributes"]["description"] = [
+        // Set next
+        $next = $resp["next"] ?? null;
+
+        // Get all from next
+        while ($next) {
+            // Set the url
+            $url = "$this->baseUrlMe" . explode("me", $next)[1];
+
+            // Make the request
+            $nextResp = json_decode(Http::withHeaders($this->header)->get($url)->body(), true);
+
+            // Merge the playlists
+            $playlists = array_merge($playlists, $nextResp["data"]);
+            // Set next
+            $next = $nextResp["next"] ?? null;
+        }
+
+        // Loop through all playlists
+        // TODO Remove this once we release new iOS version
+        for ($i = 0; $i < count($playlists) - 1; $i++) {
+            if (!isset($playlists[$i]["attributes"]["description"])) {
+                $playlists[$i]["attributes"]["description"] = [
                     "standard" => "No description provided."
                 ];
             }
         }
+
+        // Set the playlists
+        $resp["data"] = $playlists;
 
         return (object)$resp;
     }
