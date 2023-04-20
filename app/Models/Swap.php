@@ -11,6 +11,16 @@ class Swap extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "user_id",
+        "from_service",
+        "to_service",
+        "from_playlist_id",
+        "playlist_name",
+        "status",
+        "description"
+    ];
+
     public function setStatus(SwapStatus $status)
     {
         $this->status = $status;

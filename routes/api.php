@@ -31,15 +31,32 @@ Route::get("/v2/user/verify", [\App\Http\Controllers\v2\User\LoginController::cl
 Route::get("/v2/settings/maintenance", [SettingsController::class, "maintenance"]);
 
 Route::middleware("auth:sanctum")->group(function () {
+    // Has Routes
     Route::get("/v2/user/has/spotify", [\App\Http\Controllers\v2\User\HasController::class, "hasSpotify"]);
     Route::get("/v2/user/has/applemusic", [\App\Http\Controllers\v2\User\HasController::class, "hasAppleMusic"]);
     Route::get("/v2/user/has/tidal", [\App\Http\Controllers\v2\User\HasController::class, "hasTidal"]);
 
+    // Notification routes
     Route::get("/v2/user/notifications/ios/enable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableIos"]);
     Route::get("/v2/user/notifications/ios/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "disableIos"]);
     Route::get("/v2/user/notifications/ios/enabled", [\App\Http\Controllers\v2\User\NotificationsController::class, "iosEnabled"]);
 
+    // Delete route
     Route::post("/v2/user/delete", [\App\Http\Controllers\v2\User\DeleteController::class, "delete"]);
+
+    // Swap routes
+    Route::post("/v2/swap/start", [\App\Http\Controllers\v2\Swap\SwapController::class, "start"]);
+    Route::get("/v2/swap", [\App\Http\Controllers\v2\Swap\SwapController::class, "getAll"]);
+    Route::get("/v2/swap/{id}", [\App\Http\Controllers\v2\Swap\SwapController::class, "get"]);
+
+    // Spotify routes
+    Route::get("/v2/spotify/authUrl", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "getAuthUrl"]);
+    Route::get("/v2/spotify/auth", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "auth"]);
+
+    Route::get("/v2/spotify/me/playlists", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "getUserPlaylists"]);
+    //Route::get("/spotify/me/playlist/{id}", [SpotifyController::class, "playlist"]);
+    //Route::get("/spotify/playlist/{id}", [SpotifyController::class, "playlist"]);
+    //Route::get("/spotify/me/library", [SpotifyController::class, "library"]);
 });
 
 
