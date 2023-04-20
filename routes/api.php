@@ -22,9 +22,31 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+// V2
+
+Route::post("/v2/user/signup", [\App\Http\Controllers\v2\User\SignupController::class, "add"]);
+Route::post("/v2/user/login", [\App\Http\Controllers\v2\User\LoginController::class, "check"]);
+Route::get("/v2/user/verify", [\App\Http\Controllers\v2\User\LoginController::class, "verify"]);
+
+Route::get("/v2/settings/maintenance", [SettingsController::class, "maintenance"]);
+
+Route::middleware("auth:sanctum")->group(function () {
+    Route::get("/v2/user/has/spotify", [\App\Http\Controllers\v2\User\HasController::class, "hasSpotify"]);
+    Route::get("/v2/user/has/applemusic", [\App\Http\Controllers\v2\User\HasController::class, "hasAppleMusic"]);
+    Route::get("/v2/user/has/tidal", [\App\Http\Controllers\v2\User\HasController::class, "hasTidal"]);
+
+    Route::get("/v2/user/notifications/ios/enable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableIos"]);
+    Route::get("/v2/user/notifications/ios/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "disableIos"]);
+    Route::get("/v2/user/notifications/ios/enabled", [\App\Http\Controllers\v2\User\NotificationsController::class, "iosEnabled"]);
+
+    Route::post("/v2/user/delete", [\App\Http\Controllers\v2\User\DeleteController::class, "delete"]);
+});
+
+
 /*
  * User routes
  */
+
 Route::middleware("auth:sanctum")->get("/user/verify", [UserController::class, "verify"]);
 
 Route::post("/user/register", [UserController::class, "store"]);
