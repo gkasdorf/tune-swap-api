@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppleMusic\AppleMusicAuthController;
 use App\Http\Controllers\AppleMusic\AppleMusicController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\Spotify\SpotifyAuthController;
 use App\Http\Controllers\Spotify\SpotifyController;
 use App\Http\Controllers\SwapController;
@@ -47,6 +48,11 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/user/notifications/ios/disable", [UserController::class, "disableIosNotifications"]);
 
     Route::post("/user/delete", [UserController::class, "delete"]);
+
+    /*
+     * Settings routes
+     */
+    Route::get("/settings/maintenance", [SettingsController::class, "getMaintenance"]);
 
     /*
      * Spotify auth routes
