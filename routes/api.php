@@ -35,6 +35,11 @@ Route::get("/user/verify", [UserController:: class, "verify"]);
 Route::get("/applemusic/authPage", [AppleMusicAuthController::class, "authPage"]);
 Route::get("/applemusic/auth", [AppleMusicAuthController::class, "auth"]);
 
+/*
+ * Settings routes
+ */
+Route::get("/settings/maintenance", [SettingsController::class, "getMaintenance"]);
+
 Route::middleware("auth:sanctum")->group(function () {
     /*
      * User auth routes
@@ -48,11 +53,6 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/user/notifications/ios/disable", [UserController::class, "disableIosNotifications"]);
 
     Route::post("/user/delete", [UserController::class, "delete"]);
-
-    /*
-     * Settings routes
-     */
-    Route::get("/settings/maintenance", [SettingsController::class, "getMaintenance"]);
 
     /*
      * Spotify auth routes
