@@ -41,9 +41,7 @@ class ProcessSwap implements ShouldQueue
         $this->swap->save();
 
         // Create a new normalize instance
-        $normalize = new NormalizePlaylist(
-            MusicService::from($this->swap->from_service),
-            MusicService::from($this->swap->to_service),
+        $normalize = new NormalizePlaylistRewrite(
             $this->swap,
             $this->user
         );

@@ -58,7 +58,7 @@ class AppleMusic
      * @param string $id
      * @return array
      */
-    public function getUserPlaylist(string $id): array
+    public function getPlaylist(string $id): array
     {
         // Create the url
         $url = "$this->baseUrlMe/library/playlists/$id/tracks";
@@ -147,7 +147,7 @@ class AppleMusic
      * @param $id
      * @return string
      */
-    public function getUserPlaylistName($id): string
+    public function getPlaylistName($id): string
     {
         $url = "$this->baseUrlMe/library/playlists/$id";
 
@@ -202,52 +202,14 @@ class AppleMusic
 
     /**
      * Get a catalog resource (in this case a track)
-     * @param array $query Array containing the necessary params for search
-     *      $query = [
-     *          'name' => (string) The track to search for
-     *          'artist' => (string) The artist to search for
-     *          'album' => (string) The album to search for
-     *      ]
-     * @param bool $retry
+     * @param string $q
      * @return ?object
      */
-    public function search(array $query, bool $retry = false): ?object
+    public function search(string $q): ?object
     {
-        // Since we are really only worried about finding tracks right now, we will just default to that.
-
-        // Make our search term
-        if ($retry) {
-            $lower = strtolower($query["name"]);
-
-            // Remove "recorded at"
-            if (str_contains($lower, "recorded at")) {
-                $lower = explode("recorded at", $lower)[0];
-            }
-
-            // Remove "xxxx remaster"
-            if (str_contains($lower, "20")) {
-                $lower = explode("20", $lower)[0];
-                $lower = str_replace("(", "", $lower);
-            }
-
-            $query["name"] = $lower;
-
-            $term = $query["name"] . " " . $query["artist"];
-        } else {
-            $term = $query["name"] . " " . $query["artist"] . " " . $query["album"];
-        }
-
-        // Fix our term
-        $term = str_replace(" ", "+", $term);
-        $term = str_replace("'", "", $term);
-        $term = str_replace("-", "", $term);
-        $term = str_replace("++", "+", $term);
-
-        error_log("Our term is " . $term);
-
         // Create the data
         $data = [
-            "term" => $term,
+            "term" => $q,
             "limit" => 1,
             "types" => "songs"
         ];
@@ -255,21 +217,26 @@ class AppleMusic
         // Create the url - For some reason Apple is not decoding the %2B, so we just pass  along the +
         $url = "$this->baseUrl/catalog/$this->storefront/search?" . str_replace("%2B", "+", http_build_query($data));
 
-        $resp = Http::withHeaders($this->header)->get($url)->body();
-        $song = $resp->results->songs->data[0];
+        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
 
-        if (!$song) {
+        try {
+            $song = $resp->results->songs ? $resp->results->songs->data[0] : null;
+
+
+            error_log("Found it!");
+
+            // Return the response
+            return (object)[
+                "id" => $song->attributes->playParams->id,
+                "name" => $song->attributes->name,
+                "artist" => $song->attributes->artistName,
+                "album" => $song->attributes->albumName,
+                "artwork" => $song->attributes->artwork->url
+            ];
+        } catch (\Exception $e) {
+            error_log("Didn't find it.");
             return null;
         }
-
-        // Return the response
-        return (object)[
-            "id" => $song->attributes->playParams->id,
-            "name" => $song->attributes->name,
-            "artist" => $song->attributes->artistName,
-            "album" => $song->attributes->albumName,
-            "artwork" => $song->attributes->artwork->url
-        ];
     }
 
     /**

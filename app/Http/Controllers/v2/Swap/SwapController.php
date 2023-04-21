@@ -13,15 +13,15 @@ class SwapController
 {
     public function start(Request $request): JsonResponse
     {
-        try {
-            $request->validate([
-                "from_service" => "required",
-                "to_service" => "required",
-                "from_playlist_id" => "required",
-                "playlist_name" => "required",
-                "description" => "nullable|string"
-            ]);
+        $data = $request->validate([
+            "from_service" => "required",
+            "to_service" => "required",
+            "from_playlist_id" => "required",
+            "playlist_name" => "required",
+            "description" => "nullable|string"
+        ]);
 
+        try {
             $data["user_id"] = $request->user()->id;
             $data["status"] = SwapStatus::CREATED;
 
@@ -35,6 +35,8 @@ class SwapController
                 "swapStatus" => $swap->status
             ]);
         } catch (\Exception $e) {
+            error_log($e->getMessage());
+            error_log($e->getLine());
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

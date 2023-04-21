@@ -173,18 +173,11 @@ class Spotify
     }
 
     /**
-     * @param array $query
-     *      $query = [
-     *          'name' => (string) The track to search for
-     *          'artist' => (string) The artist to search for
-     *          'album' => (string) The album to search for
-     *      ]
+     * @param string $q
      * @return object|null Returns the search results if there were any, null if none
      */
-    public function search(array $query): ?object
+    public function search(string $q): ?object
     {
-        $q = $query["name"] . " " . $query["artist"] . " " . $query["album"];
-        $q = str_replace("'", "", $q);
 
         $data = [
             "q" => $q,
@@ -202,6 +195,7 @@ class Spotify
         }
 
         return (object)[
+
             "id" => $track->id,
             "name" => $track->name,
             "artist" => $track->artists[0]->name,
