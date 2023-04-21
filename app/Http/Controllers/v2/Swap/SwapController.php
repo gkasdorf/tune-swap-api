@@ -47,7 +47,7 @@ class SwapController
             $limit = $request->limit ?? 1000;
             $offset = $request->offset ?? 0;
 
-            $swaps = $request->user()->swaps()->get();
+            $swaps = $request->user()->swaps()->orderBy('id', 'DESC')->get();
 
             return ApiResponse::success([
                 "total" => count($swaps),
@@ -73,6 +73,27 @@ class SwapController
 
             return ApiResponse::success([
                 "swap" => $swap
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::error("An unexpected error has occurred.");
+        }
+    }
+
+    public function getNotFound(Request $request, $id): JsonResponse
+    {
+        try {
+            $notFound = Swap::where("id", $id)->with("songsNotFound.song")->first();
+
+            if (!$notFound) {
+                return ApiResponse::fail("Swap not found.", 404);
+            }
+
+            if ($notFound->user_id !== $request->user()->id) {
+                return ApiResponse::fail("You do not have permission to view this swap.", 401);
+            }
+
+            return ApiResponse::success([
+                "swap" => $notFound
             ]);
         } catch (\Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");

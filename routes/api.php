@@ -48,6 +48,7 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post("/v2/swap/start", [\App\Http\Controllers\v2\Swap\SwapController::class, "start"]);
     Route::get("/v2/swap", [\App\Http\Controllers\v2\Swap\SwapController::class, "getAll"]);
     Route::get("/v2/swap/{id}", [\App\Http\Controllers\v2\Swap\SwapController::class, "get"]);
+    Route::get("/v2/swap/{id}/notfound", [\App\Http\Controllers\v2\Swap\SwapController::class, "getNotFound"]);
 
     // Spotify routes
     Route::get("/v2/spotify/authUrl", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "getAuthUrl"]);

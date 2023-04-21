@@ -6,6 +6,7 @@ use App\Http\MusicService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Swap extends Model
 {
@@ -60,5 +61,10 @@ class Swap extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function songsNotFound(): HasMany
+    {
+        return $this->hasMany(SongNotFound::class);
     }
 }

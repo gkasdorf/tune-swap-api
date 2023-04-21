@@ -9,6 +9,7 @@ use App\Http\MusicService;
 use App\Models\Playlist;
 use App\Models\PlaylistSong;
 use App\Models\Song;
+use App\Models\SongNotFound;
 use App\Models\Swap;
 use App\Models\User;
 
@@ -132,6 +133,7 @@ class NormalizePlaylist
                 $savedSong->save();
 
                 PlaylistSong::createLink($this->newPlaylist->id, $savedSong->id);
+                usleep(500);
             } catch (\Exception $e) {
                 error_log("There was an error!");
                 error_log($e->getMessage());
@@ -150,8 +152,13 @@ class NormalizePlaylist
         ];
     }
 
+    /**
+     * Create playlist in the database
+     * @return void
+     */
     private function createPlaylist(): void
     {
+        // Create a playlist in the database
         $playlist = new Playlist([
             "name" => $this->swap->playlist_name,
             "has_spotify" => $this->swap->from_service == MusicService::SPOTIFY || $this->swap->to_service == MusicService::SPOTIFY,
@@ -167,6 +174,11 @@ class NormalizePlaylist
         $this->newPlaylist = $playlist;
     }
 
+    /**
+     * Check if the song already has the wanted service ID
+     * @param $song
+     * @return string|null
+     */
     private function checkIfExists($song): ?string
     {
         switch (MusicService::from($this->swap->to_service)) {
@@ -189,10 +201,17 @@ class NormalizePlaylist
         }
     }
 
+    /**
+     * Get the song ID for the wanted service
+     * @param $song
+     * @return Song
+     */
     private function songTo($song): Song
     {
+        // See if we already have it
         $checkRes = $this->checkIfExists($song);
 
+        // If we have it, just add the id and return
         if ($checkRes) {
             error_log("It exists!!");
             $this->songsByServiceId[] = $checkRes;
@@ -201,11 +220,14 @@ class NormalizePlaylist
             return $song;
         }
 
+        // Make our search term
         $term = $this->prepareSearch($song);
         error_log("Term is: {$term}");
 
+        // Perform the search
         $search = $this->toApi->search($term);
 
+        // If we didn't find it this time, we will try again with a different term
         if (!$search) {
             error_log("Didn't find it. Retrying...");
 
@@ -215,24 +237,40 @@ class NormalizePlaylist
             $search = $this->toApi->search($term);
         }
 
+        // If we still didn't find it, we will just move on
         if (!$search) {
             $this->swap->songs_not_found++;
             $this->swap->save();
 
+            // Add it to the database
+            $notFound = new SongNotFound([
+                "song_id" => $song->id,
+                "swap_id" => $this->swap->id
+            ]);
+
+            $notFound->save();
+
             return $song;
         }
 
+        // Add the song's id
         $this->songsByServiceId[] = $search->id;
+        // Increment
         $this->swap->songs_found++;
         $this->swap->save();
 
+        // Add the new ID to the song
         $song = $this->addNewId($song, $search->id);
 
-        usleep(500);
-
+        // Return the song
         return $song;
     }
 
+    /**
+     * Prepare a term for search
+     * @param $song
+     * @return string
+     */
     private function prepareSearch($song): string
     {
         switch (MusicService::from($this->swap->to_service)) {
@@ -265,6 +303,11 @@ class NormalizePlaylist
         }
     }
 
+    /**
+     * Prepare a less strict term for search, may result in mismatch
+     * @param $song
+     * @return string
+     */
     private function prepareRetry($song): string
     {
         $name = strtolower($song->name);
@@ -304,6 +347,12 @@ class NormalizePlaylist
         }
     }
 
+    /**
+     * Add the id to the correct service in the song
+     * @param $song
+     * @param $newId
+     * @return Song
+     */
     private function addNewId($song, $newId): Song
     {
         switch (MusicService::from($this->swap->to_service)) {
