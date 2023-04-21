@@ -57,6 +57,16 @@ Route::middleware("auth:sanctum")->group(function () {
     //Route::get("/spotify/me/playlist/{id}", [SpotifyController::class, "playlist"]);
     //Route::get("/spotify/playlist/{id}", [SpotifyController::class, "playlist"]);
     //Route::get("/spotify/me/library", [SpotifyController::class, "library"]);
+
+    Route::get("/v2/applemusic/me/playlists", [\App\Http\Controllers\v2\Apps\AppleMusic\AppleMusicController::class, "getUserPlaylists"]);
+
+    /**
+     * Tidal Routes
+     */
+    Route::get("/v2/tidal/authUrl", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getAuthUrl"]);
+    Route::post("/v2/tidal/auth", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "auth"]);
+
+    Route::get("/v2/tidal/me/playlists", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getUserPlaylists"]);
 });
 
 

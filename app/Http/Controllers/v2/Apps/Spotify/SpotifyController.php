@@ -61,7 +61,7 @@ class SpotifyController extends \App\Http\Controllers\Controller
     {
         try {
             $spotify = new Spotify($request->user());
-
+            
             return ApiResponse::success([
                 "playlists" => $spotify->getUserPlaylists()
             ]);

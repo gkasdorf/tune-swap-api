@@ -45,7 +45,7 @@ class SwapController
             $limit = $request->limit ?? 1000;
             $offset = $request->offset ?? 0;
 
-            $swaps = $request->user()->swaps();
+            $swaps = $request->user()->swaps()->get();
 
             return ApiResponse::success([
                 "total" => count($swaps),
