@@ -353,19 +353,19 @@ class Tidal
 
         // Get that response
         $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
-        $song = $resp->tracks->items[0];
+        try {
+            $song = $resp->tracks->items[0];
 
-        if (!$song) {
+            return (object)[
+                "id" => $song->id,
+                "name" => $song->title,
+                "artist" => $song->artists[0]->name,
+                "album" => $song->album->title,
+                "artwork" => null
+            ];
+        } catch (\Exception $e) {
             return null;
         }
-
-        return (object)[
-            "id" => $song->id,
-            "name" => $song->title,
-            "artist" => $song->artists[0]->name,
-            "album" => $song->album->title,
-            "artwork" => null
-        ];
     }
 
     /**

@@ -196,6 +196,8 @@ class NormalizePlaylist
         if ($checkRes) {
             error_log("It exists!!");
             $this->songsByServiceId[] = $checkRes;
+            $this->swap->songs_found++;
+            $this->swap->save();
             return $song;
         }
 
