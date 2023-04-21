@@ -6,6 +6,8 @@
 
 namespace App\AppleMusic;
 
+use App\Models\ParsedPlaylist;
+use App\Models\ParsedSong;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
@@ -54,9 +56,9 @@ class AppleMusic
     /**
      * Get a user's playlist
      * @param string $id
-     * @return object
+     * @return array
      */
-    public function getUserPlaylist(string $id): object
+    public function getUserPlaylist(string $id): array
     {
         // Create the url
         $url = "$this->baseUrlMe/library/playlists/$id/tracks";
@@ -64,78 +66,101 @@ class AppleMusic
         $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
         $tracks = clone($response);
 
+        // Get all the tracks from next
         while (isset($response->next)) {
             $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($this->rootUrl . $response->next)->body());
 
             $tracks->data = array_merge($tracks->data, $response->data);
         }
 
-        // REturn the response
-        return $tracks;
+        $tracksParsed = [];
+
+        foreach ($tracks->data as $track) {
+            $tracksParsed[] = new ParsedSong(
+                $track->attributes->playParams->id,
+                $track->attributes->name,
+                $track->attributes->artistName,
+                $track->attributes->albumName,
+                $track->attributes->artwork->url
+            );
+        }
+
+        // Return the response
+        return $tracksParsed;
     }
 
     /**
      * Get user's playlists
      * @return object
      */
-    public function getUserPlaylists(): object
+    public function getUserPlaylists(): array
     {
         // Create the url
         $url = "$this->baseUrlMe/library/playlists";
 
         // Return the response
-        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body(), true);
+        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
 
         // a foreach loop to check each item in an array to see if it has a description.
         // Get the initial playlists
-        $playlists = $resp["data"];
+        $playlists = $resp->data;
 
         // Set next
-        $next = $resp["next"] ?? null;
+        $next = $resp->data->next ?? null;
 
-        // Get all from next
         while ($next) {
             // Set the url
             $url = "$this->baseUrlMe" . explode("me", $next)[1];
 
             // Make the request
-            $nextResp = json_decode(Http::withHeaders($this->header)->get($url)->body(), true);
+            $nextResp = json_decode(Http::withHeaders($this->header)->get($url)->body());
 
             // Merge the playlists
-            $playlists = array_merge($playlists, $nextResp["data"]);
+            $playlists = array_merge($playlists, $nextResp->data);
             // Set next
-            $next = $nextResp["next"] ?? null;
+            $next = $nextResp->next ?? null;
         }
 
-        // Loop through all playlists
-        // TODO Remove this once we release new iOS version
-        for ($i = 0; $i < count($playlists) - 1; $i++) {
-            if (!isset($playlists[$i]["attributes"]["description"])) {
-                $playlists[$i]["attributes"]["description"] = [
-                    "standard" => "No description provided."
-                ];
+        // Parse the playlists
+        $parsedPlaylists = [];
+
+        try {
+            // Loop through each
+            foreach ($playlists as $playlist) {
+                $parsedPlaylists[] = new ParsedPlaylist(
+                    $playlist->attributes->playParams->id,
+                    $playlist->attributes->name,
+                    $playlist->attributes->description ? $playlist->attributes->description->standard : "No description provided.",
+                    null
+                );
             }
+        } catch (\Exception $e) {
+            error_log($e->getLine());
+            error_log($e->getMessage());
         }
 
-        // Set the playlists
-        $resp["data"] = $playlists;
-
-        return (object)$resp;
+        return $parsedPlaylists;
     }
 
     /**
      * Get a playlist name from the user's library
+     * @param $id
      * @return string
      */
-    public function getUserPlaylistName($id)
+    public function getUserPlaylistName($id): string
     {
         $url = "$this->baseUrlMe/library/playlists/$id";
 
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
     }
 
-    public function getLibrary()
+    /**
+     * Get a user's library
+     * @return array
+     */
+    public function getLibrary(): array
     {
+        //TODO While for next
         $data = [
             "limit" => 100,
             "offset" => 0,
@@ -146,22 +171,34 @@ class AppleMusic
 
         $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
 
-        return $response;
+        $parsedSongs = [];
+
+        foreach ($response->data as $song) {
+            $parsedSongs[] = new ParsedSong(
+                $song->attributes->playParams->id,
+                $song->attributes->name,
+                $song->attributes->artistName,
+                $song->attributes->albumName,
+                $song->attributes->artwork->url
+            );
+        }
+
+        return $parsedSongs;
     }
 
-    /**
-     * Get a playlist from the catalog
-     * @param string $id
-     * @return object
-     */
-    public function getPlaylist(string $id): object
-    {
-        // Create the url
-        $url = "$this->baseUrl/catalog/$this->storefront/playlists/$id";
-
-        // Return the response
-        return json_decode(Http::withHeaders($this->header)->get($url)->body());
-    }
+//    /**
+//     * Get a playlist from the catalog
+//     * @param string $id
+//     * @return object
+//     */
+//    public function getPlaylist(string $id): object
+//    {
+//        // Create the url
+//        $url = "$this->baseUrl/catalog/$this->storefront/playlists/$id";
+//
+//        // Return the response
+//        return json_decode(Http::withHeaders($this->header)->get($url)->body());
+//    }
 
     /**
      * Get a catalog resource (in this case a track)
@@ -171,9 +208,10 @@ class AppleMusic
      *          'artist' => (string) The artist to search for
      *          'album' => (string) The album to search for
      *      ]
-     * @return object
+     * @param bool $retry
+     * @return ?object
      */
-    public function search(array $query, $retry = false): object
+    public function search(array $query, bool $retry = false): ?object
     {
         // Since we are really only worried about finding tracks right now, we will just default to that.
 
@@ -217,16 +255,28 @@ class AppleMusic
         // Create the url - For some reason Apple is not decoding the %2B, so we just pass  along the +
         $url = "$this->baseUrl/catalog/$this->storefront/search?" . str_replace("%2B", "+", http_build_query($data));
 
-        $resp = Http::withHeaders($this->header)->get($url);
+        $resp = Http::withHeaders($this->header)->get($url)->body();
+        $song = $resp->results->songs->data[0];
+
+        if (!$song) {
+            return null;
+        }
 
         // Return the response
-        return json_decode($resp->body());
+        return (object)[
+            "id" => $song->attributes->playParams->id,
+            "name" => $song->attributes->name,
+            "artist" => $song->attributes->artistName,
+            "album" => $song->attributes->albumName,
+            "artwork" => $song->attributes->artwork->url
+        ];
     }
 
     /**
      * Create a new playlist and return the response
      * @param string $name
      * @param array $tracks
+     * @param string $description
      * @return object
      */
     public function createPlaylist(string $name, array $tracks, string $description = ""): object

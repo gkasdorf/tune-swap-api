@@ -2,6 +2,7 @@
 
 namespace App\Tidal;
 
+use App\Models\ParsedPlaylist;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
@@ -160,10 +161,11 @@ class Tidal
 
     /**
      * Return all the user's playlists
-     * @return object
+     * @return array
      */
-    public function getUserPlaylists(): object
+    public function getUserPlaylists(): array
     {
+        //TODO While for next
         // Create our data
         $data = [
             "folderId" => "root",
@@ -173,12 +175,23 @@ class Tidal
             "order" => "DATE",
             "orderDirection" => "DESC"
         ];
-
         // Create our URL
         $url = "$this->baseUrlv2/my-collection/playlists/folders?" . http_build_query($data);
 
-        // Return the response
-        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+        $resp = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+
+        $parsedPlaylists = [];
+
+        foreach ($resp->items as $playlist) {
+            $parsedPlaylists[] = new ParsedPlaylist(
+                $playlist->data->uuid,
+                $playlist->data->title,
+                $playlist->data->description ?? "No description provided.",
+                null
+            );
+        }
+
+        return $parsedPlaylists;
     }
 
     /**
