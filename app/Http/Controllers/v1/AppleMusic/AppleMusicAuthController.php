@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\v1\AppleMusic;
 
-use App\Api\AppleMusic\AppleMusic;
+use App\Api\AppleMusic\AppleMusicv1;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -24,7 +24,7 @@ class AppleMusicAuthController extends Controller
 
         $user->apple_music_token = $token;
 
-        $appleMusic = new AppleMusic($user, $token);
+        $appleMusic = new AppleMusicv1($user, $token);
 
         $storefront = str_replace('"', "", $appleMusic->getUserStorefront()->data[0]->id);
 
