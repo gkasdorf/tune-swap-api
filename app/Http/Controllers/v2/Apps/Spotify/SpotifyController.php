@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\v2\Apps\Spotify;
 
+use App\Api\Spotify\Spotify;
+use App\Api\Spotify\SpotifyAuthentication;
 use App\Helpers\ApiResponse;
-use App\Spotify\Spotify;
-use App\Spotify\SpotifyAuthentication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -61,7 +61,7 @@ class SpotifyController extends \App\Http\Controllers\Controller
     {
         try {
             $spotify = new Spotify($request->user());
-            
+
             return ApiResponse::success([
                 "playlists" => $spotify->getUserPlaylists()
             ]);

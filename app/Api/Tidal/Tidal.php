@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tidal;
+namespace App\Api\Tidal;
 
 use App\Models\ParsedPlaylist;
 use App\Models\User;

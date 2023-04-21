@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Tidal;
+namespace App\Http\Controllers\v1\Tidal;
 
+use App\Api\Tidal\Tidal;
 use App\Http\Controllers\Controller;
-use App\Tidal\Tidal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

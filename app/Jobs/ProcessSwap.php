@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\AppleMusic\AppleMusic;
+use App\Api\AppleMusic\AppleMusic;
+use App\Api\Spotify\Spotify;
+use App\Api\Tidal\Tidal;
 use App\Http\MusicService;
 use App\Models\Swap;
 use App\Models\SwapStatus;
 use App\Models\User;
 use App\Notifications\SwapComplete;
-use App\Spotify\Spotify;
-use App\Tidal\Tidal;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

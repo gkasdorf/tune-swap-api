@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Spotify;
+namespace App\Api\Spotify;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Http;

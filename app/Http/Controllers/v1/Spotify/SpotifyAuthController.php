@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Spotify;
+namespace App\Http\Controllers\v1\Spotify;
 
+use App\Api\Spotify\Spotify;
+use App\Api\Spotify\SpotifyAuthentication;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Spotify\Spotify;
-use App\Spotify\SpotifyAuthentication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 

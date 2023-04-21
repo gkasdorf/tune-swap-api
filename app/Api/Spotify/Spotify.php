@@ -4,7 +4,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
-namespace App\Spotify;
+namespace App\Api\Spotify;
 
 use App\Models\ParsedPlaylist;
 use App\Models\ParsedSong;

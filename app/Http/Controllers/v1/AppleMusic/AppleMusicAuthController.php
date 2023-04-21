@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\AppleMusic;
+namespace App\Http\Controllers\v1\AppleMusic;
 
-use App\AppleMusic\AppleMusic;
+use App\Api\AppleMusic\AppleMusic;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;

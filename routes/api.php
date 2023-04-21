@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\AppleMusic\AppleMusicAuthController;
-use App\Http\Controllers\AppleMusic\AppleMusicController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\Spotify\SpotifyAuthController;
-use App\Http\Controllers\Spotify\SpotifyController;
-use App\Http\Controllers\SwapController;
-use App\Http\Controllers\Tidal\TidalController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\v1\AppleMusic\AppleMusicAuthController;
+use App\Http\Controllers\v1\AppleMusic\AppleMusicController;
+use App\Http\Controllers\v1\Spotify\SpotifyAuthController;
+use App\Http\Controllers\v1\Spotify\SpotifyController;
+use App\Http\Controllers\v1\SwapController;
+use App\Http\Controllers\v1\Tidal\TidalController;
+use App\Http\Controllers\v1\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,6 +69,8 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/tidal/me/playlists", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getUserPlaylists"]);
 });
 
+
+// V1 ROUTES DEPRECATED
 
 /*
  * User routes

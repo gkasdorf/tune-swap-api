@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\v2\Apps\AppleMusic;
 
-use App\AppleMusic\AppleMusic;
+use App\Api\AppleMusic\AppleMusic;
 use App\Helpers\ApiResponse;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;

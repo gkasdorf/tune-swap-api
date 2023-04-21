@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\v2\Apps\Tidal;
 
+use App\Api\Tidal\Tidal;
 use App\Helpers\ApiResponse;
-use App\Tidal\Tidal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

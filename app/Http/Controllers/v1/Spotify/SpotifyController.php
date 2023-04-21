@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Spotify;
+namespace App\Http\Controllers\v1\Spotify;
 
+use App\Api\Spotify\Spotify;
 use App\Http\Controllers\Controller;
-use App\Spotify\Spotify;
 use Illuminate\Http\Request;
 
 class SpotifyController extends Controller
