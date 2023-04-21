@@ -30,6 +30,8 @@ Route::get("/v2/user/verify", [\App\Http\Controllers\v2\User\LoginController::cl
 
 Route::get("/v2/settings/maintenance", [SettingsController::class, "maintenance"]);
 
+Route::post("/v2/user/login/apple", [\App\Http\Controllers\v2\User\LoginController::class, "doAppleAuth"]);
+
 Route::middleware("auth:sanctum")->group(function () {
     // Has Routes
     Route::get("/v2/user/has/spotify", [\App\Http\Controllers\v2\User\HasController::class, "hasSpotify"]);

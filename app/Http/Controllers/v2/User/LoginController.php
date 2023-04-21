@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class LoginController extends \App\Http\Controllers\Controller
@@ -67,6 +68,80 @@ class LoginController extends \App\Http\Controllers\Controller
             }
 
             return ApiResponse::success();
+        } catch (\Exception $e) {
+            return ApiResponse::error("An unexpected error has occurred.");
+        }
+    }
+
+    public function doAppleAuth(Request $request): JsonResponse
+    {
+        $code = $request->code;
+        $name = $request->name;
+
+        $data = [
+            "client_id" => env("APPLE_CLIENT_ID"),
+            "client_secret" => env("APPLE_CLIENT_SECRET"),
+            "code" => $code,
+            "grant_type" => "authorization_code"
+        ];
+
+        try {
+            $resp = json_decode(Http::asForm()->post("https://appleid.apple.com/auth/token", $data)->body());
+            $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $resp->id_token)[1])))); // 4
+
+
+            // This is a new signup if we have a name, most likely. We will make sure.
+            if ($payload->email && $name) return $this->appleSignUp($payload, $name);
+            else if ($payload->email) return $this->appleLogIn($payload);
+
+            return ApiResponse::error("Unable to authenticate with Apple.");
+        } catch (\Exception $e) {
+            return ApiResponse::error("Unable to authenticate with Apple.");
+        }
+    }
+
+    private function appleLogIn($payload): JsonResponse
+    {
+        try {
+            $user = User::where("email", $payload->email)->first();
+
+            $token = $user->createToken("API_TOKEN");
+
+            return ApiResponse::success([
+                "data" => [
+                    "name" => $user->name,
+                    "email" => $user->email,
+                    "api_token" => $token->plainTextToken
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::error("An unexpected error has occurred.");
+        }
+    }
+
+    private function appleSignUp($payload, $name)
+    {
+        try {
+            if (User::where("email", $payload->email)->first()) return $this->appleLogIn($payload);
+
+
+            $user = new User([
+                "name" => $name,
+                "email" => $payload->email,
+                "password" => "APPLE"
+            ]);
+
+            $user->save();
+
+            $token = $user->createToken("API_TOKEN");
+
+            return ApiResponse::success([
+                "data" => [
+                    "name" => $user->name,
+                    "email" => $user->email,
+                    "api_token" => $token->plainTextToken
+                ]
+            ]);
         } catch (\Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
