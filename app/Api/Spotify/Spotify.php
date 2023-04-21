@@ -4,8 +4,10 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
-namespace App\Spotify;
+namespace App\Api\Spotify;
 
+use App\Models\ParsedPlaylist;
+use App\Models\ParsedSong;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
@@ -56,17 +58,31 @@ class Spotify
 
     /**
      * Return the user's playlists
-     * @return object
+     * @return array
      */
-    public function getUserPlaylists(): object
+    public function getUserPlaylists(): array
     {
+        //TODO While for next
         $data = [
             "limit" => 50
         ];
 
         $url = $this->baseUrl . "/me/playlists?" . http_build_query($data);
 
-        return json_decode(Http::withHeaders($this->header)->acceptJson()->asForm()->get($url)->body());
+        $resp = json_decode(Http::withHeaders($this->header)->acceptJson()->asForm()->get($url)->body());
+
+        $parsedPlaylists = [];
+
+        foreach ($resp->items as $playlist) {
+            $parsedPlaylists[] = new ParsedPlaylist(
+                $playlist->id,
+                $playlist->name,
+                $playlist->description ?? "No description provided.",
+                $playlist->images[0]->url
+            );
+        }
+
+        return $parsedPlaylists;
     }
 
     /**
@@ -92,7 +108,19 @@ class Spotify
             $tracks = array_merge($tracks, $response->items);
         }
 
-        return $tracks;
+        $parsedTracks = [];
+
+        foreach ($tracks as $track) {
+            $parsedTracks[] = new ParsedSong(
+                $track->track->id,
+                $track->track->name,
+                $track->track->artists[0]->name,
+                $track->track->album->name,
+                $track->track->album->images[0]->url
+            );
+        }
+
+        return $parsedTracks;
     }
 
     /**
@@ -129,22 +157,27 @@ class Spotify
             $tracks = array_merge($tracks, $response->items);
         }
 
-        return $tracks;
+        $parsedTracks = [];
+
+        foreach ($tracks as $track) {
+            $parsedTracks[] = new ParsedSong(
+                $track->track->id,
+                $track->track->name,
+                $track->track->artists[0]->name,
+                $track->track->album->name,
+                $track->track->album->images[0]->url
+            );
+        }
+
+        return $parsedTracks;
     }
 
     /**
-     * @param array $query
-     *      $query = [
-     *          'name' => (string) The track to search for
-     *          'artist' => (string) The artist to search for
-     *          'album' => (string) The album to search for
-     *      ]
+     * @param string $q
      * @return object|null Returns the search results if there were any, null if none
      */
-    public function search(array $query): ?object
+    public function search(string $q): ?object
     {
-        $q = $query["name"] . " " . $query["artist"] . " " . $query["album"];
-        $q = str_replace("'", "", $q);
 
         $data = [
             "q" => $q,
@@ -154,13 +187,21 @@ class Spotify
 
         $url = "$this->baseUrl/search?" . http_build_query($data);
 
-        $resp = Http::withHeaders($this->header)->get($url);
+        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
+        $track = $resp->tracks->items[0];
 
-        try {
-            return json_decode($resp->body())->tracks->items[0];
-        } catch (\Exception) {
+        if (!$track) {
             return null;
         }
+
+        return (object)[
+
+            "id" => $track->id,
+            "name" => $track->name,
+            "artist" => $track->artists[0]->name,
+            "album" => $track->album->name,
+            "image" => $track->album->images[0]->url
+        ];
     }
 
     /**

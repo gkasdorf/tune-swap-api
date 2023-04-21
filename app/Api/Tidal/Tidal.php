@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Tidal;
+namespace App\Api\Tidal;
 
+use App\Models\ParsedPlaylist;
+use App\Models\ParsedSong;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
@@ -160,10 +162,11 @@ class Tidal
 
     /**
      * Return all the user's playlists
-     * @return object
+     * @return array
      */
-    public function getUserPlaylists(): object
+    public function getUserPlaylists(): array
     {
+        //TODO While for next
         // Create our data
         $data = [
             "folderId" => "root",
@@ -173,12 +176,23 @@ class Tidal
             "order" => "DATE",
             "orderDirection" => "DESC"
         ];
-
         // Create our URL
         $url = "$this->baseUrlv2/my-collection/playlists/folders?" . http_build_query($data);
 
-        // Return the response
-        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+        $resp = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+
+        $parsedPlaylists = [];
+
+        foreach ($resp->items as $playlist) {
+            $parsedPlaylists[] = new ParsedPlaylist(
+                $playlist->data->uuid,
+                $playlist->data->title,
+                $playlist->data->description ?? "No description provided.",
+                null
+            );
+        }
+
+        return $parsedPlaylists;
     }
 
     /**
@@ -225,7 +239,20 @@ class Tidal
             $tracks = array_merge($tracks, $response->items);
         }
 
-        return $tracks;
+        // Parse the tracks
+        $parsedSongs = [];
+
+        foreach ($response->items as $song) {
+            $parsedSongs[] = new ParsedSong(
+                $song->id,
+                $song->title,
+                $song->artist->name,
+                $song->album->title,
+                null
+            );
+        }
+
+        return $parsedSongs;
     }
 
     /**
@@ -287,30 +314,35 @@ class Tidal
             $tracks = array_merge($tracks, $response->items);
         }
 
-        return $tracks;
+        // Parse the tracks
+        $parsedSongs = [];
+
+        foreach ($response->items as $song) {
+            $parsedSongs[] = new ParsedSong(
+                $song->id,
+                $song->title,
+                $song->artist->name,
+                $song->album->title,
+                null
+            );
+        }
+
+        return $parsedSongs;
     }
 
     /**
-     * @param array $query
-     *      $query = [
-     *          'name' => (string) The track to search for
-     *          'artist' => (string) The artist to search for
-     *          'album' => (string) The album to search for
+     * @param string $q
      * @return object|null
      */
-    public function search(array $query): ?object
+    public function search(string $q): ?object
     {
-        $query["name"] = explode("(", $query["name"])[0];
-        // Create the term
-        $term = str_replace("'", "", $query["name"]) . " " . str_replace("'", "", $query["artist"]);
-
         // Create our data
         $data = [
-            "query" => $term,
+            "query" => $q,
             "limit" => 1,
             "types" => "TRACKS",
             "includeContributors" => false,
-            "includUserPlaylists" => false,
+            "includeUserPlaylists" => false,
             "supportsUserData" => false,
             "countryCode" => "US",
             "locale" => "en_US"
@@ -320,15 +352,18 @@ class Tidal
         $url = "$this->baseUrlv1/search?" . http_build_query($data);
 
         // Get that response
-        $resp = Http::withHeaders($this->header)->get($url);
-
+        $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
         try {
-            // Try to return the song
-            return json_decode($resp->body())->tracks->items[0];
-        } catch (\Exception) {
-            // If there wasn't anything we just return null
-            error_log("Didn't find song.");
-            error_log(json_encode($query));
+            $song = $resp->tracks->items[0];
+
+            return (object)[
+                "id" => $song->id,
+                "name" => $song->title,
+                "artist" => $song->artists[0]->name,
+                "album" => $song->album->title,
+                "artwork" => null
+            ];
+        } catch (\Exception $e) {
             return null;
         }
     }

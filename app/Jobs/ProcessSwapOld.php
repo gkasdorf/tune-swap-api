@@ -16,7 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ProcessSwap implements ShouldQueue
+class ProcessSwapOld implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -41,7 +41,9 @@ class ProcessSwap implements ShouldQueue
         $this->swap->save();
 
         // Create a new normalize instance
-        $normalize = new NormalizePlaylist(
+        $normalize = new NormalizePlaylistOld(
+            MusicService::from($this->swap->from_service),
+            MusicService::from($this->swap->to_service),
             $this->swap,
             $this->user
         );

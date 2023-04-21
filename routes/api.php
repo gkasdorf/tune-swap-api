@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\AppleMusic\AppleMusicAuthController;
-use App\Http\Controllers\AppleMusic\AppleMusicController;
-use App\Http\Controllers\Spotify\SpotifyAuthController;
-use App\Http\Controllers\Spotify\SpotifyController;
-use App\Http\Controllers\SwapController;
-use App\Http\Controllers\Tidal\TidalController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\v1\AppleMusic\AppleMusicAuthController;
+use App\Http\Controllers\v1\AppleMusic\AppleMusicController;
+use App\Http\Controllers\v1\Spotify\SpotifyAuthController;
+use App\Http\Controllers\v1\Spotify\SpotifyController;
+use App\Http\Controllers\v1\SwapController;
+use App\Http\Controllers\v1\Tidal\TidalController;
+use App\Http\Controllers\v1\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,9 +22,60 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+// V2
+
+Route::post("/v2/user/signup", [\App\Http\Controllers\v2\User\SignupController::class, "add"]);
+Route::post("/v2/user/login", [\App\Http\Controllers\v2\User\LoginController::class, "check"]);
+Route::get("/v2/user/verify", [\App\Http\Controllers\v2\User\LoginController::class, "verify"]);
+
+Route::get("/v2/settings/maintenance", [SettingsController::class, "maintenance"]);
+
+Route::middleware("auth:sanctum")->group(function () {
+    // Has Routes
+    Route::get("/v2/user/has/spotify", [\App\Http\Controllers\v2\User\HasController::class, "hasSpotify"]);
+    Route::get("/v2/user/has/applemusic", [\App\Http\Controllers\v2\User\HasController::class, "hasAppleMusic"]);
+    Route::get("/v2/user/has/tidal", [\App\Http\Controllers\v2\User\HasController::class, "hasTidal"]);
+
+    // Notification routes
+    Route::get("/v2/user/notifications/ios/enable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableIos"]);
+    Route::get("/v2/user/notifications/ios/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "disableIos"]);
+    Route::get("/v2/user/notifications/ios/enabled", [\App\Http\Controllers\v2\User\NotificationsController::class, "iosEnabled"]);
+
+    // Delete route
+    Route::post("/v2/user/delete", [\App\Http\Controllers\v2\User\DeleteController::class, "delete"]);
+
+    // Swap routes
+    Route::post("/v2/swap/start", [\App\Http\Controllers\v2\Swap\SwapController::class, "start"]);
+    Route::get("/v2/swap", [\App\Http\Controllers\v2\Swap\SwapController::class, "getAll"]);
+    Route::get("/v2/swap/{id}", [\App\Http\Controllers\v2\Swap\SwapController::class, "get"]);
+
+    // Spotify routes
+    Route::get("/v2/spotify/authUrl", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "getAuthUrl"]);
+    Route::get("/v2/spotify/auth", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "auth"]);
+
+    Route::get("/v2/spotify/me/playlists", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "getUserPlaylists"]);
+    //Route::get("/spotify/me/playlist/{id}", [SpotifyController::class, "playlist"]);
+    //Route::get("/spotify/playlist/{id}", [SpotifyController::class, "playlist"]);
+    //Route::get("/spotify/me/library", [SpotifyController::class, "library"]);
+
+    Route::get("/v2/applemusic/me/playlists", [\App\Http\Controllers\v2\Apps\AppleMusic\AppleMusicController::class, "getUserPlaylists"]);
+
+    /**
+     * Tidal Routes
+     */
+    Route::get("/v2/tidal/authUrl", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getAuthUrl"]);
+    Route::post("/v2/tidal/auth", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "auth"]);
+
+    Route::get("/v2/tidal/me/playlists", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getUserPlaylists"]);
+});
+
+
+// V1 ROUTES DEPRECATED
+
 /*
  * User routes
  */
+
 Route::middleware("auth:sanctum")->get("/user/verify", [UserController::class, "verify"]);
 
 Route::post("/user/register", [UserController::class, "store"]);
@@ -33,6 +85,11 @@ Route::get("/user/verify", [UserController:: class, "verify"]);
 
 Route::get("/applemusic/authPage", [AppleMusicAuthController::class, "authPage"]);
 Route::get("/applemusic/auth", [AppleMusicAuthController::class, "auth"]);
+
+/*
+ * Settings routes
+ */
+Route::get("/settings/maintenance", [SettingsController::class, "getMaintenance"]);
 
 Route::middleware("auth:sanctum")->group(function () {
     /*

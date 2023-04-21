@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Tidal;
+namespace App\Http\Controllers\v1\Tidal;
 
+use App\Api\Tidal\Tidal;
+use App\Api\Tidal\Tidalv1;
 use App\Http\Controllers\Controller;
-use App\Tidal\Tidal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class TidalController extends Controller
         return [
             "code" => 1000,
             "message" => "User is authorized, URL created",
-            "data" => Tidal::createAuthUrl()
+            "data" => Tidalv1::createAuthUrl()
         ];
     }
 
@@ -36,7 +37,7 @@ class TidalController extends Controller
         error_log($code);
         error_log($codeVerifier);
 
-        $response = Tidal::auth($code, $codeVerifier);
+        $response = Tidalv1::auth($code, $codeVerifier);
 
         if (!$response) {
             return [

@@ -4,12 +4,12 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
-namespace App\AppleMusic;
+namespace App\Api\AppleMusic;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
-class AppleMusic
+class AppleMusicv1
 {
     // TODO We should be setting the proper storefront based on the user
     private string $storefront = "us";

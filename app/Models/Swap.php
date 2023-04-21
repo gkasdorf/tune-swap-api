@@ -11,6 +11,22 @@ class Swap extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "user_id",
+        "from_service",
+        "to_service",
+        "from_playlist_id",
+        "playlist_name",
+        "status",
+        "description"
+    ];
+
+    protected $casts = [
+        "status" => SwapStatus::class,
+        "fromService" => MusicService::class,
+        "toService" => MusicService::class
+    ];
+
     public function setStatus(SwapStatus $status)
     {
         $this->status = $status;
@@ -45,22 +61,4 @@ class Swap extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    protected $casts = [
-        "status" => SwapStatus::class,
-        "fromService" => MusicService::class,
-        "toService" => MusicService::class
-    ];
-}
-
-enum SwapStatus: string
-{
-    case CREATED = "Created";
-    case QUEUED = "Queued";
-    case FINDING_MUSIC = "Finding Music";
-    case BUILDING_PLAYLIST = "Building Playlist";
-    case CLEANING_UP = "Cleaning Up";
-    case COMPLETED = "Completed";
-    case CANCELLED = "Cancelled";
-    case ERROR = "Error";
 }

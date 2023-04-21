@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 use Illuminate\Http\JsonResponse;
 
-class ApiResponses
+class ApiResponse
 {
     /**
      * Returns a successful JSON response with the provided data.
