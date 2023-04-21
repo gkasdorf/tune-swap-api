@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessSwap;
+use App\Jobs\ProcessSwapOld;
 use App\Models\Swap;
 use App\Models\SwapStatus;
 use Illuminate\Http\Request;
@@ -39,7 +39,7 @@ class SwapController extends Controller
         error_log(json_encode($swap));
 
         // Dispatch the swap
-        ProcessSwap::dispatch($request->user(), $swap);
+        ProcessSwapOld::dispatch($request->user(), $swap);
 
         // Return the swap information
         return [
