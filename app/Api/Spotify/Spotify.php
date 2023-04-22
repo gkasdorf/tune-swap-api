@@ -116,7 +116,7 @@ class Spotify
                 $track->track->name,
                 $track->track->artists[0]->name,
                 $track->track->album->name,
-                $track->track->album->images[0]->url
+                $track->track->album->images[0] ? $track->track->album->images[0]->url : null
             );
         }
 
