@@ -222,7 +222,7 @@ class Spotify
         $jsonData = json_encode($data);
 
         // Set the url
-        $url = "$this->baseUrl/users/" . $this->user->spotify_user_id . "/playlists";
+        $url = "{$this->baseUrl}/users/{$this->user->spotify_user_id}/playlists";
 
         // Send the request
         $createResponse = json_decode(Http::withHeaders($this->header)->withBody($jsonData)->post($url));
