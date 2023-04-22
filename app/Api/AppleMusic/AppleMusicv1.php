@@ -109,7 +109,7 @@ class AppleMusicv1
 
         // Loop through all playlists
         // TODO Remove this once we release new iOS version
-        for ($i = 0; $i < count($playlists) - 1; $i++) {
+        for ($i = 0; $i < count($playlists); $i++) {
             if (!isset($playlists[$i]["attributes"]["description"])) {
                 $playlists[$i]["attributes"]["description"] = [
                     "standard" => "No description provided."
