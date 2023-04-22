@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\v1\Tidal;
 
-use App\Api\Tidal\Tidal;
 use App\Api\Tidal\Tidalv1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -73,7 +72,7 @@ class TidalController extends Controller
      */
     public function playlists(Request $request): JsonResponse
     {
-        $tidal = new Tidal($request->user());
+        $tidal = new Tidalv1($request->user());
 
         return response()->json($tidal->getUserPlaylists());
     }
@@ -85,14 +84,14 @@ class TidalController extends Controller
      */
     public function playlist(Request $request, $id): JsonResponse
     {
-        $tidal = new Tidal($request->user());
+        $tidal = new Tidalv1($request->user());
 
         return response()->json($tidal->getPlaylist($id));
     }
 
     public function library(Request $request): JsonResponse
     {
-        $tidal = new Tidal($request->user());
+        $tidal = new Tidalv1($request->user());
 
         return response()->json($tidal->getLibrary());
     }
