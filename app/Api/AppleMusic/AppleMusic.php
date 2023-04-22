@@ -130,7 +130,7 @@ class AppleMusic
                 $parsedPlaylists[] = new ParsedPlaylist(
                     $playlist->attributes->playParams->id,
                     $playlist->attributes->name,
-                    $playlist->attributes->description ? $playlist->attributes->description->standard : "No description provided.",
+                    $playlist->attributes->description->standard ?? "",
                     null
                 );
             }
