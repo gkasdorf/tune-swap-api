@@ -47,10 +47,11 @@ class SwapController
             $limit = $request->limit ?? 1000;
             $offset = $request->offset ?? 0;
 
-            $swaps = $request->user()->swaps()->orderBy('id', 'DESC')->get();
+            $swaps = $request->user()->swaps()->orderBy('id', 'DESC')->limit($limit)->offset($offset)->get();
+            $total = $request->user()->swaps()->count();
 
             return ApiResponse::success([
-                "total" => count($swaps),
+                "total" => $total,
                 "swaps" => count($swaps) > 0 ? $swaps : []
             ]);
         } catch (\Exception $e) {
