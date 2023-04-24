@@ -71,6 +71,9 @@ class AppleMusic
             $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($this->rootUrl . $response->next)->body());
 
             $tracks->data = array_merge($tracks->data, $response->data);
+
+            error_log("Still getting some...");
+            usleep(500);
         }
 
         $tracksParsed = [];

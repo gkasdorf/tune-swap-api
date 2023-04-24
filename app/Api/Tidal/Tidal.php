@@ -237,6 +237,9 @@ class Tidal
 
             // Add the tracks to the array
             $tracks = array_merge($tracks, $response->items);
+
+            error_log("Still getting some...");
+            uslee(500);
         }
 
         // Parse the tracks

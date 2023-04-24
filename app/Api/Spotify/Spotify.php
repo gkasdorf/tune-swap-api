@@ -106,6 +106,9 @@ class Spotify
             $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($response->next));
 
             $tracks = array_merge($tracks, $response->items);
+
+            error_log("Still getting some...");
+            usleep(500);
         }
 
         $parsedTracks = [];
