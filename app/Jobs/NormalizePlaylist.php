@@ -22,7 +22,7 @@ class NormalizePlaylist
     private mixed $fromApi;
     private mixed $toApi;
     private bool $isLibrary = false;
-    private array $songsByServiceId;
+    private array $songsByServiceId = [];
     private int $playlistId;
     private bool $retrySearch = false;
 
