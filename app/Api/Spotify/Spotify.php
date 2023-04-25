@@ -78,7 +78,7 @@ class Spotify
                 $playlist->id,
                 $playlist->name,
                 $playlist->description ?? "No description provided.",
-                ($playlist->images && $playlist->images[0]) ? $playlist->images[0] : null
+                $playlist->images[0]->url
             );
         }
 
