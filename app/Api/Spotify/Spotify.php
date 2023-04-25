@@ -73,6 +73,7 @@ class Spotify
 
         $parsedPlaylists = [];
 
+
         foreach ($resp->items as $playlist) {
             $parsedPlaylists[] = new ParsedPlaylist(
                 $playlist->id,
