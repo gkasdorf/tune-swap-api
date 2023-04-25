@@ -33,7 +33,7 @@ class AppleMusicAuthController extends Controller
         $user->save();
 
         if ($request->web) {
-            return redirect(env("CORS_URL") . "/app/applemusic/auth?complete=true");
+            return redirect(env("CORS_URL") . "/app/user/auth/applemusic?complete=true");
         }
 
         return redirect("tuneswap://home?success=true");

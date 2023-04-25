@@ -43,6 +43,10 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/user/notifications/ios/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "disableIos"]);
     Route::get("/v2/user/notifications/ios/enabled", [\App\Http\Controllers\v2\User\NotificationsController::class, "iosEnabled"]);
 
+    // Settings routes
+    Route::post("/v2/user/settings/name-email", [\App\Http\Controllers\v2\User\SettingsController::class, "updateNameEmail"]);
+    Route::post("/v2/user/settings/password", [\App\Http\Controllers\v2\User\SettingsController::class, "updatePassword"]);
+
     // Delete route
     Route::post("/v2/user/delete", [\App\Http\Controllers\v2\User\DeleteController::class, "delete"]);
 
