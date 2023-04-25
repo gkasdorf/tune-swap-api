@@ -73,13 +73,17 @@ class Spotify
 
         $parsedPlaylists = [];
 
-        foreach ($resp->items as $playlist) {
-            $parsedPlaylists[] = new ParsedPlaylist(
-                $playlist->id,
-                $playlist->name,
-                $playlist->description ?? "No description provided.",
-                $playlist->images[0]->url
-            );
+        try {
+            foreach ($resp->items as $playlist) {
+                $parsedPlaylists[] = new ParsedPlaylist(
+                    $playlist->id,
+                    $playlist->name,
+                    $playlist->description ?? "No description provided.",
+                    $playlist->images[0]->url ?? null
+                );
+            }
+        } catch (\Exception $e) {
+            error_log(json_encode($e));
         }
 
         return $parsedPlaylists;
