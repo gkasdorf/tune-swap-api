@@ -277,6 +277,10 @@ class Tidal
 
     public function getPlaylistUrl(string $id): string
     {
+        if ($id == "library") {
+            return "https://listen.tidal.com/my-collection/tracks";
+        }
+
         $data = self::addCountryCode([]);
 
         $url = "$this->baseUrlv1/playlists/$id?" . http_build_query($data);

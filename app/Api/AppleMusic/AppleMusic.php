@@ -159,6 +159,10 @@ class AppleMusic
 
     public function getPlaylistUrl($id): string
     {
+        if ($id == "library") {
+            return "https://music.apple.com/library";
+        }
+
         return "https://music.apple.com/library/playlist/$id";
     }
 

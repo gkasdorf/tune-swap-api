@@ -150,6 +150,10 @@ class Spotify
      */
     public function getPlaylistUrl($id): ?string
     {
+        if ($id == "library") {
+            return "https://open.spotify.com/collection/tracks";
+        }
+
         $url = $this->baseUrl . "/playlists/" . $id;
 
         $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
