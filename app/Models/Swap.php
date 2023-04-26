@@ -19,7 +19,11 @@ class Swap extends Model
         "from_playlist_id",
         "playlist_name",
         "status",
-        "description"
+        "description",
+        "from_playlist_id",
+        "from_playlist_url",
+        "to_playlist_id",
+        "to_playlist_url"
     ];
 
     protected $casts = [
