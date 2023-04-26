@@ -58,13 +58,16 @@ class ProcessSwap implements ShouldQueue
         // Update the status
         $this->swap->setStatus(SwapStatus::BUILDING_PLAYLIST);
 
+        // Create the playlist
         $this->toApi->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
 
-        $this->swap->setFromData($this->fromApi->getPlaylistUrl());
+        // Set the from playlist URL
+        $this->swap->setFromData($this->fromApi->getPlaylistUrl($this->swap->from_playlist_id));
 
         // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
 
+        // Send a notification if enabled
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
         }
