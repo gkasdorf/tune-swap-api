@@ -205,8 +205,6 @@ class AppleMusicv1
         $term = str_replace("-", "", $term);
         $term = str_replace("++", "+", $term);
 
-        error_log("Our term is " . $term);
-
         // Create the data
         $data = [
             "term" => $term,

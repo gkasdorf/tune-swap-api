@@ -27,16 +27,11 @@ class TidalController extends \App\Http\Controllers\Controller
             $code = $request->code;
             $codeVerifier = $request->codeVerifier;
 
-            error_log($code);
-            error_log($codeVerifier);
-
             $response = Tidal::auth($code, $codeVerifier);
 
             if (!$response) {
                 return ApiResponse::error("There was an error authenticating with Tidal.");
             }
-
-            error_log(json_encode($response));
 
             $user->tidal_token = $response->access_token;
             $user->tidal_expiration = $response->expires_in + time();

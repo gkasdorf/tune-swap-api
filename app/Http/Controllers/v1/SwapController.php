@@ -36,8 +36,6 @@ class SwapController extends Controller
         // Save the swap
         $swap->save();
 
-        error_log(json_encode($swap));
-
         // Dispatch the swap
         ProcessSwapOld::dispatch($request->user(), $swap);
 

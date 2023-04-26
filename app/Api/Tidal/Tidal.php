@@ -150,8 +150,6 @@ class Tidal
 
         $result = json_decode($response->body());
 
-        error_log(json_encode($result));
-
         $user->tidal_token = $result->access_token;
         $user->tidal_expiration = $result->expires_in + time();
 
@@ -238,8 +236,7 @@ class Tidal
             // Add the tracks to the array
             $tracks = array_merge($tracks, $response->items);
 
-            error_log("Still getting some...");
-            uslee(500);
+            usleep(500);
         }
 
         // Parse the tracks

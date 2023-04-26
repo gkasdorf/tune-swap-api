@@ -345,7 +345,6 @@ class NormalizePlaylistOld
                 $this->swap->songs_found++;
                 $this->swap->save();
             } else {
-                error_log("We didn't find the song.");
                 // Update the count
                 $this->swap->songs_not_found++;
                 $this->swap->save();
@@ -430,12 +429,10 @@ class NormalizePlaylistOld
         } catch (\Exception) {
             // If we have not already retried, lets do that
             if (!$this->retrySearch) {
-                error_log("Didn't find the song, attempting to retry...");
                 $this->retrySearch = true;
                 return $this->getAppleMusicSongId($song, true);
             }
 
-            error_log("Still didn't find the track after a retry. Moving on.");
             return null;
         }
     }

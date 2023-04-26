@@ -174,7 +174,6 @@ class NormalizePlaylist
 
         // If we have it, just add the id and return
         if ($checkRes) {
-            error_log("It exists!!");
             $this->songsByServiceId[] = $checkRes;
             $this->swap->songs_found++;
             $this->swap->save();
@@ -183,17 +182,13 @@ class NormalizePlaylist
 
         // Make our search term
         $term = $this->prepareSearch($song);
-        error_log("Term is: {$term}");
 
         // Perform the search
         $search = $this->toApi->search($term);
 
         // If we didn't find it this time, we will try again with a different term
         if (!$search) {
-            error_log("Didn't find it. Retrying...");
-
             $term = $this->prepareRetry($song);
-            error_log("New term: {$term}");
 
             $search = $this->toApi->search($term);
         }

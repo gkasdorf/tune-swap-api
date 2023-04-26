@@ -33,9 +33,6 @@ class TidalController extends Controller
         $code = $request->code;
         $codeVerifier = $request->codeVerifier;
 
-        error_log($code);
-        error_log($codeVerifier);
-
         $response = Tidalv1::auth($code, $codeVerifier);
 
         if (!$response) {

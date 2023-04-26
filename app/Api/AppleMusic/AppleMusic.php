@@ -72,7 +72,6 @@ class AppleMusic
 
             $tracks->data = array_merge($tracks->data, $response->data);
 
-            error_log("Still getting some...");
             usleep(500);
         }
 
@@ -234,9 +233,6 @@ class AppleMusic
         try {
             $song = $resp->results->songs ? $resp->results->songs->data[0] : null;
 
-
-            error_log("Found it!");
-
             // Return the response
             return (object)[
                 "id" => $song->attributes->playParams->id,
@@ -246,7 +242,6 @@ class AppleMusic
                 "artwork" => $song->attributes->artwork->url
             ];
         } catch (\Exception $e) {
-            error_log("Didn't find it.");
             return null;
         }
     }

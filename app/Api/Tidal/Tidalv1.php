@@ -327,7 +327,6 @@ class Tidalv1
             return json_decode($resp->body())->tracks->items[0];
         } catch (\Exception) {
             // If there wasn't anything we just return null
-            error_log("Didn't find song.");
             error_log(json_encode($query));
             return null;
         }

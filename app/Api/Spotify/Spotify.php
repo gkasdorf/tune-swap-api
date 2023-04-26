@@ -96,38 +96,43 @@ class Spotify
      */
     public function getPlaylist(string $id): array
     {
-        $data = [
-            "limit" => 50
-        ];
+        try {
+            $data = [
+                "limit" => 50
+            ];
 
-        $url = $this->baseUrl . "/playlists/" . $id . "/tracks?" . http_build_query($data);
+            $url = $this->baseUrl . "/playlists/" . $id . "/tracks?" . http_build_query($data);
 
-        $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+            $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
 
-        $tracks = $response->items;
+            $tracks = $response->items;
 
-        while ($response->next) {
-            $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($response->next));
+            while ($response->next) {
+                $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($response->next));
 
-            $tracks = array_merge($tracks, $response->items);
+                $tracks = array_merge($tracks, $response->items);
 
-            error_log("Still getting some...");
-            usleep(500);
+                usleep(500);
+            }
+
+            $parsedTracks = [];
+
+            foreach ($tracks as $track) {
+                $parsedTracks[] = new ParsedSong(
+                    $track->track->id,
+                    $track->track->name,
+                    $track->track->artists[0]->name,
+                    $track->track->album->name,
+                    $track->track->album->images[0] ? $track->track->album->images[0]->url : null
+                );
+            }
+
+            return $parsedTracks;
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            error_log($e->getLine());
+            error_log($e->getFile());
         }
-
-        $parsedTracks = [];
-
-        foreach ($tracks as $track) {
-            $parsedTracks[] = new ParsedSong(
-                $track->track->id,
-                $track->track->name,
-                $track->track->artists[0]->name,
-                $track->track->album->name,
-                $track->track->album->images[0] ? $track->track->album->images[0]->url : null
-            );
-        }
-
-        return $parsedTracks;
     }
 
     /**
