@@ -2,9 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Api\AppleMusic\AppleMusic;
-use App\Api\Spotify\Spotify;
-use App\Api\Tidal\Tidal;
 use App\Http\MusicService;
 use App\Models\Playlist;
 use App\Models\PlaylistSong;
@@ -26,7 +23,7 @@ class NormalizePlaylist
     private int $playlistId;
     private bool $retrySearch = false;
 
-    public function __construct(Swap $swap, User $user)
+    public function __construct(Swap $swap, User $user, mixed $fromApi, mixed $toApi)
     {
         // Set our swap and user
         $this->swap = $swap;
@@ -37,46 +34,8 @@ class NormalizePlaylist
             $this->isLibrary = true;
         }
 
-        // Set up our APIs
-        switch (MusicService::from($this->swap->from_service)) {
-            case MusicService::SPOTIFY:
-            {
-                $this->fromApi = new Spotify($this->user);
-                break;
-            }
-            case MusicService::APPLE_MUSIC:
-            {
-                $this->fromApi = new AppleMusic($this->user);
-                break;
-            }
-            case MusicService::TIDAL:
-            {
-                $this->fromApi = new Tidal($this->user);
-                break;
-            }
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
-
-        switch (MusicService::from($this->swap->to_service)) {
-            case MusicService::SPOTIFY:
-            {
-                $this->toApi = new Spotify($this->user);
-                break;
-            }
-            case MusicService::APPLE_MUSIC:
-            {
-                $this->toApi = new AppleMusic($this->user);
-                break;
-            }
-            case MusicService::TIDAL:
-            {
-                $this->toApi = new Tidal($this->user);
-                break;
-            }
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
+        $this->fromApi = $fromApi;
+        $this->toApi = $toApi;
     }
 
     public function normalize(): ?array
@@ -86,6 +45,10 @@ class NormalizePlaylist
 
         // Get the playlist from api
         $playlist = $this->isLibrary ? $this->fromApi->getLibrary() : $this->fromApi->getPlaylist($this->swap->from_playlist_id);
+
+        if (!$this->isLibrary) {
+            $this->swap->setFromData($this->fromApi->getPlaylistUrl($this->swap->from_playlist_id));
+        }
 
         // Set the count of songs
         $this->swap->total_songs = count($playlist);
@@ -139,8 +102,6 @@ class NormalizePlaylist
                 error_log($e->getMessage());
                 error_log($e->getLine());
                 error_log($e->getFile());
-//                error_log($e->getTraceAsString());
-//                error_log("\\n\\n\\n\\n");
             }
         }
 

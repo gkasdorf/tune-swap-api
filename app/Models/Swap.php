@@ -34,6 +34,12 @@ class Swap extends Model
         $this->save();
     }
 
+    public function setFromData($url)
+    {
+        $this->from_playlist_url = $url;
+        $this->save();
+    }
+
     public static function getSwap(int $id)
     {
         return Swap::where("id", $id)->first();

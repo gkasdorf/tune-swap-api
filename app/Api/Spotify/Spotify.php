@@ -144,6 +144,20 @@ class Spotify
     }
 
     /**
+     * Returns the playlist URL if available
+     * @param $id
+     * @return string|null
+     */
+    public function getPlaylistUrl($id): ?string
+    {
+        $url = $this->baseUrl . "/playlists/" . $id;
+
+        $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+
+        return $response->external_urls->spotify ?? null;
+    }
+
+    /**
      * @return array All the tracks in the library
      */
     public function getLibrary(): array

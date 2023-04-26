@@ -22,6 +22,9 @@ class ProcessSwap implements ShouldQueue
 
     private User $user;
     private Swap $swap;
+
+    private mixed $fromApi;
+    private mixed $toApi;
     private string $playlistName;
 
 
@@ -29,6 +32,8 @@ class ProcessSwap implements ShouldQueue
     {
         $this->user = $user;
         $this->swap = $swap;
+
+        $this->setApis();
     }
 
     /**
@@ -42,7 +47,9 @@ class ProcessSwap implements ShouldQueue
         // Create a new normalize instance
         $normalize = new NormalizePlaylist(
             $this->swap,
-            $this->user
+            $this->user,
+            $this->fromApi,
+            $this->toApi
         );
 
         // Normalize the playlist
@@ -51,29 +58,58 @@ class ProcessSwap implements ShouldQueue
         // Update the status
         $this->swap->setStatus(SwapStatus::BUILDING_PLAYLIST);
 
-        $api = null;
+        $this->toApi->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
 
-        switch (MusicService::from($this->swap->to_service)) {
-            case MusicService::SPOTIFY:
-                $api = new Spotify($this->user);
-                break;
-            case MusicService::APPLE_MUSIC:
-                $api = new AppleMusic($this->user);
-                break;
-            case MusicService::TIDAL:
-                $api = new Tidal($this->user);
-                break;
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
-
-        $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
+        $this->swap->setFromData($this->fromApi->getPlaylistUrl());
 
         // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
 
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
+        }
+    }
+
+    private function setApis()
+    {
+        switch (MusicService::from($this->swap->from_service)) {
+            case MusicService::SPOTIFY:
+            {
+                $this->fromApi = new Spotify($this->user);
+                break;
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                $this->fromApi = new AppleMusic($this->user);
+                break;
+            }
+            case MusicService::TIDAL:
+            {
+                $this->fromApi = new Tidal($this->user);
+                break;
+            }
+            case MusicService::PANDORA:
+                throw new \Exception('To be implemented');
+        }
+
+        switch (MusicService::from($this->swap->to_service)) {
+            case MusicService::SPOTIFY:
+            {
+                $this->toApi = new Spotify($this->user);
+                break;
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                $this->toApi = new AppleMusic($this->user);
+                break;
+            }
+            case MusicService::TIDAL:
+            {
+                $this->toApi = new Tidal($this->user);
+                break;
+            }
+            case MusicService::PANDORA:
+                throw new \Exception('To be implemented');
         }
     }
 
