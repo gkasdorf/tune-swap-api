@@ -157,6 +157,11 @@ class AppleMusic
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
     }
 
+    public function getPlaylistUrl($id): string
+    {
+        return "https://music.apple.com/library/playlist/$id";
+    }
+
     /**
      * Get a user's library
      * @return array
@@ -280,6 +285,11 @@ class AppleMusic
         $url = $this->baseUrlMe . "/library/playlists";
 
         // Submit the post request with the json and return the result
-        return json_decode(Http::withHeaders($this->header)->withBody($jsonData)->post($url)->body());
+        $createRes = json_decode(Http::withHeaders($this->header)->withBody($jsonData)->post($url)->body());
+
+        return (object)[
+            "id" => $createRes->data[0]->id,
+            "url" => $this->getPlaylistUrl($createRes->data[0]->id)
+        ];
     }
 }
