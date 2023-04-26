@@ -8,9 +8,9 @@ class ParsedSong
     public string $artist;
     public string $album;
     public string $image;
-    public string $id;
+    public ?string $id;
 
-    public function __construct(string $id, string $name, string $artist, string $album, string $image)
+    public function __construct(string $id, string $name, string $artist, string $album, ?string $image)
     {
         $this->name = $name;
         $this->artist = $artist;
