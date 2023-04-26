@@ -274,7 +274,9 @@ class Spotify
             Http::withHeaders($this->header)->withBody($jsonData)->post($url);
         }
 
-        // return the data about the playlist
-        return $createResponse;
+        return (object)[
+            "id" => $createResponse->id,
+            "url" => $createResponse->external_urls->spotify ?? null
+        ];
     }
 }
