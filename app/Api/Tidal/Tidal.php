@@ -330,12 +330,12 @@ class Tidal
         // Parse the tracks
         $parsedSongs = [];
 
-        foreach ($response->items as $song) {
+        foreach ($tracks as $song) {
             $parsedSongs[] = new ParsedSong(
-                $song->id,
-                $song->title,
-                $song->artist->name,
-                $song->album->title,
+                $song->item->id,
+                $song->item->title,
+                $song->item->artist->name,
+                $song->item->album->title,
                 null
             );
         }
