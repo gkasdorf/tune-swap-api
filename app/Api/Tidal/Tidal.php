@@ -275,6 +275,15 @@ class Tidal
         return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->title;
     }
 
+    public function getPlaylistUrl(string $id): string
+    {
+        $data = self::addCountryCode([]);
+
+        $url = "$this->baseUrlv1/playlists/$id?" . http_build_query($data);
+
+        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->url;
+    }
+
     /**
      * Get the tracks from the library. Same as for a plylist, but the limit is 10000 (!)
      * @return array
@@ -422,7 +431,10 @@ class Tidal
         }
 
         // Return the data about the playlist
-        return $createResp;
+        return (object)[
+            "id" => $createResp->data->uuid,
+            "url" => $createResp->data->url
+        ];
     }
 
     /**
