@@ -4,11 +4,11 @@ namespace App\Models;
 
 class ParsedSong
 {
+    public string $id;
     public string $name;
     public string $artist;
     public string $album;
-    public string $image;
-    public ?string $id;
+    public ?string $image;
 
     public function __construct(string $id, string $name, string $artist, string $album, ?string $image)
     {
