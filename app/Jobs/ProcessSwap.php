@@ -38,7 +38,6 @@ class ProcessSwap implements ShouldQueue
     {
         // Set the status to finding music
         $this->swap->setStatus(SwapStatus::FINDING_MUSIC);
-        $this->swap->save();
 
         // Create a new normalize instance
         $normalize = new NormalizePlaylist(
@@ -51,7 +50,6 @@ class ProcessSwap implements ShouldQueue
 
         // Update the status
         $this->swap->setStatus(SwapStatus::BUILDING_PLAYLIST);
-        $this->swap->save();
 
         $api = null;
 
@@ -73,7 +71,6 @@ class ProcessSwap implements ShouldQueue
 
         // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
-        $this->swap->save();
 
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
