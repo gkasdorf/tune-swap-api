@@ -460,8 +460,8 @@ class NormalizePlaylistOld
             "has_spotify" => $this->fromService == MusicService::SPOTIFY || $this->toService == MusicService::SPOTIFY,
             "has_apple_music" => $this->fromService == MusicService::APPLE_MUSIC || $this->toService == MusicService::APPLE_MUSIC,
             "user_id" => $this->user->id,
-            "original_service" => $this->swap->from_service,
-            "original_id" => $this->swap->from_playlist_id
+            "service" => $this->swap->from_service,
+            "service_id" => $this->swap->from_playlist_id
         ]);
 
         $playlist->save();

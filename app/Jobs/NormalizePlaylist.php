@@ -122,12 +122,9 @@ class NormalizePlaylist
         // Create a playlist in the database
         $playlist = new Playlist([
             "name" => $this->swap->playlist_name,
-            "has_spotify" => $this->swap->from_service == MusicService::SPOTIFY || $this->swap->to_service == MusicService::SPOTIFY,
-            "has_apple_music" => $this->swap->from_service == MusicService::APPLE_MUSIC || $this->swap->to_service == MusicService::APPLE_MUSIC,
-            "has_tidal" => $this->swap->from_service == MusicService::TIDAL || $this->swap->to_service == MusicService::TIDAL,
             "user_id" => $this->user->id,
-            "original_service" => $this->swap->from_service,
-            "original_id" => $this->swap->from_playlist_id
+            "service" => $this->swap->from_service,
+            "service_id" => $this->swap->from_playlist_id
         ]);
 
         $playlist->save();
