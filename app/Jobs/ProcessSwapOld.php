@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Api\AppleMusic\AppleMusic;
-use App\Api\Spotify\Spotify;
-use App\Api\Tidal\Tidal;
+use App\Api\AppleMusic\AppleMusicv1;
+use App\Api\Spotify\Spotifyv1;
+use App\Api\Tidal\Tidalv1;
 use App\Http\MusicService;
 use App\Models\Swap;
 use App\Models\SwapStatus;
@@ -57,13 +57,13 @@ class ProcessSwapOld implements ShouldQueue
 
         // Figure out where we are sending the playlist
         if (MusicService::from($this->swap->to_service) == MusicService::SPOTIFY) {
-            $api = new Spotify($this->user);
+            $api = new Spotifyv1($this->user);
             $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
         } else if (MusicService::from($this->swap->to_service) == MusicService::APPLE_MUSIC) {
-            $api = new AppleMusic($this->user);
+            $api = new AppleMusicv1($this->user);
             $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
         } else if (MusicService::from($this->swap->to_service) == MusicService::TIDAL) {
-            $api = new Tidal($this->user);
+            $api = new Tidalv1($this->user);
             $api->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
         }
 
