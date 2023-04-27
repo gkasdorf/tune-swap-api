@@ -14,13 +14,9 @@ class Playlist extends Model
     protected $fillable = [
         "name",
         "songs",
-        "has_spotify",
-        "has_apple_music",
-        "has_tidal",
-        "has_pandora",
         "user_id",
-        "original_service",
-        "original_id"
+        "service",
+        "service_id"
     ];
 
     public function user(): BelongsTo

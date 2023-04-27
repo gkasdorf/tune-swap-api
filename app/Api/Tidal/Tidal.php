@@ -385,9 +385,10 @@ class Tidal
      * Create a playlist. Will return the data for the newly created playlist.
      * @param string $name
      * @param array $tracks
-     * @return mixed
+     * @param string $description
+     * @return object
      */
-    public function createPlaylist(string $name, array $tracks, string $description = ""): mixed
+    public function createPlaylist(string $name, array $tracks, string $description = ""): object
     {
 
         // Set the create data
