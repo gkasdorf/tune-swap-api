@@ -21,4 +21,9 @@ class Share extends Model
     {
         return $this->belongsTo(Playlist::class);
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(Share::class);
+    }
 }
