@@ -129,12 +129,16 @@ class AppleMusic
         try {
             // Loop through each
             foreach ($playlists as $playlist) {
-                $parsedPlaylists[] = new ParsedPlaylist(
-                    $playlist->attributes->playParams->id,
-                    $playlist->attributes->name,
-                    $playlist->attributes->description->standard ?? "",
-                    null
-                );
+                try {
+                    $parsedPlaylists[] = new ParsedPlaylist(
+                        $playlist->attributes->playParams->id,
+                        $playlist->attributes->name,
+                        $playlist->attributes->description->standard ?? "",
+                        null
+                    );
+                } catch(\Exception $e) {
+                    error_log("Something went wrong with a song. Moving on.");
+                }
             }
         } catch (\Exception $e) {
             error_log($e->getLine());
