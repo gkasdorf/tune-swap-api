@@ -188,13 +188,18 @@ class Spotify
         $parsedTracks = [];
 
         foreach ($tracks as $track) {
-            $parsedTracks[] = new ParsedSong(
-                $track->track->id,
-                $track->track->name,
-                $track->track->artists[0]->name,
-                $track->track->album->name,
-                $track->track->album->images[0]->url ?? null
-            );
+            try {
+                $parsedTracks[] = new ParsedSong(
+                    $track->track->id,
+                    $track->track->name,
+                    $track->track->artists[0]->name,
+                    $track->track->album->name,
+                    $track->track->album->images[0]->url ?? null
+                );
+            } catch(\Exception $e) {
+                error_log("Something went wrong finding a song. Moving on.");
+                error_log(json_encode($e));
+            }
         }
 
         return $parsedTracks;
