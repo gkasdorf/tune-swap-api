@@ -190,13 +190,18 @@ class AppleMusic
         $parsedSongs = [];
 
         foreach ($response->data as $song) {
-            $parsedSongs[] = new ParsedSong(
-                $song->attributes->playParams->id,
-                $song->attributes->name,
-                $song->attributes->artistName,
-                $song->attributes->albumName,
-                $song->attributes->artwork->url
-            );
+            try {
+                $parsedSongs[] = new ParsedSong(
+                    $song->attributes->playParams->id,
+                    $song->attributes->name,
+                    $song->attributes->artistName,
+                    $song->attributes->albumName,
+                    $song->attributes->artwork->url ?? null
+                );
+            } catch(\Exception $e) {
+                error_log("Something went wrong finding a song.");
+                error_log(json_encode($e));
+            }
         }
 
         return $parsedSongs;
