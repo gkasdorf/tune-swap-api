@@ -88,6 +88,8 @@ class NormalizePlaylist
                     }
                 }
 
+                // Save the song so we get an ID
+                $savedSong->save();
 
                 // Let's add the new service ID to the song
                 $savedSong = $this->songTo($savedSong);
