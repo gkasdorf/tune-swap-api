@@ -83,7 +83,7 @@ class AppleMusic
                 $track->attributes->name,
                 $track->attributes->artistName,
                 $track->attributes->albumName,
-                $track->attributes->artwork->url
+                $track->attributes->artwork->url ?? null
             );
         }
 

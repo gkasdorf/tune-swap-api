@@ -59,7 +59,7 @@ class ProcessSwap implements ShouldQueue
         $this->swap->setStatus(SwapStatus::BUILDING_PLAYLIST);
 
         // Create the playlist
-        $createRes = $this->toApi->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description);
+        $createRes = $this->toApi->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description ?? "");
 
         // Set the from playlist URL
         $this->swap->setFromData($this->fromApi->getPlaylistUrl($this->swap->from_playlist_id));
