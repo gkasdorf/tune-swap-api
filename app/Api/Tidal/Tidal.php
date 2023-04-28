@@ -243,13 +243,18 @@ class Tidal
         $parsedSongs = [];
 
         foreach ($response->items as $song) {
-            $parsedSongs[] = new ParsedSong(
-                $song->id,
-                $song->title,
-                $song->artist->name,
-                $song->album->title,
-                null
-            );
+            try {
+                $parsedSongs[] = new ParsedSong(
+                    $song->id,
+                    $song->title,
+                    $song->artist->name,
+                    $song->album->title,
+                    null
+                );
+            } catch(\Exception $e) {
+                error_log("Error finding song. Moving on.");
+                error_log(json_encode($e));
+            }
         }
 
         return $parsedSongs;
@@ -331,13 +336,18 @@ class Tidal
         $parsedSongs = [];
 
         foreach ($tracks as $song) {
-            $parsedSongs[] = new ParsedSong(
-                $song->item->id,
-                $song->item->title,
-                $song->item->artist->name,
-                $song->item->album->title,
-                null
-            );
+            try {
+                $parsedSongs[] = new ParsedSong(
+                    $song->item->id,
+                    $song->item->title,
+                    $song->item->artist->name,
+                    $song->item->album->title,
+                    null
+                );
+            } catch(\Exception $e) {
+                error_log("Error finding song. Moving on.");
+                error_log(json_encode($e));
+            }
         }
 
         return $parsedSongs;

@@ -96,28 +96,29 @@ class Spotify
      */
     public function getPlaylist(string $id): array
     {
-        try {
-            $data = [
-                "limit" => 50
-            ];
+        $data = [
+            "limit" => 50
+        ];
 
-            $url = $this->baseUrl . "/playlists/" . $id . "/tracks?" . http_build_query($data);
+        $url = $this->baseUrl . "/playlists/" . $id . "/tracks?" . http_build_query($data);
 
-            $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
+        $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body());
 
-            $tracks = $response->items;
+        $tracks = $response->items;
 
-            while ($response->next) {
-                $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($response->next));
+        while ($response->next) {
+            $response = json_decode(Http::withHeaders($this->header)->acceptJson()->get($response->next));
 
-                $tracks = array_merge($tracks, $response->items);
+            $tracks = array_merge($tracks, $response->items);
 
-                usleep(500);
-            }
+            usleep(500);
+        }
 
-            $parsedTracks = [];
+        $parsedTracks = [];
 
-            foreach ($tracks as $track) {
+
+        foreach ($tracks as $track) {
+            try {
                 $parsedTracks[] = new ParsedSong(
                     $track->track->id,
                     $track->track->name,
@@ -125,13 +126,10 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
+            } catch(\Exception $e) {
+                error_log("Error getting song. Moving on.");
+                error_log(json_encode($e));
             }
-
-            return $parsedTracks;
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            error_log($e->getLine());
-            error_log($e->getFile());
         }
     }
 
