@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Api\AppleMusic\AppleMusic;
-use App\Api\Spotify\Spotify;
-use App\Api\Tidal\Tidal;
+use App\Helpers\Helpers;
 use App\Http\MusicService;
 use App\Models\Swap;
 use App\Models\SwapStatus;
 use App\Models\User;
 use App\Notifications\SwapComplete;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -74,50 +73,16 @@ class ProcessSwap implements ShouldQueue
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function setApis()
     {
-        switch (MusicService::from($this->swap->from_service)) {
-            case MusicService::SPOTIFY:
-            {
-                $this->fromApi = new Spotify($this->user);
-                break;
-            }
-            case MusicService::APPLE_MUSIC:
-            {
-                $this->fromApi = new AppleMusic($this->user);
-                break;
-            }
-            case MusicService::TIDAL:
-            {
-                $this->fromApi = new Tidal($this->user);
-                break;
-            }
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
-
-        switch (MusicService::from($this->swap->to_service)) {
-            case MusicService::SPOTIFY:
-            {
-                $this->toApi = new Spotify($this->user);
-                break;
-            }
-            case MusicService::APPLE_MUSIC:
-            {
-                $this->toApi = new AppleMusic($this->user);
-                break;
-            }
-            case MusicService::TIDAL:
-            {
-                $this->toApi = new Tidal($this->user);
-                break;
-            }
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
+        $this->fromApi = Helpers::serviceToApi(MusicService::from($this->swap->from_service), $this->user);
+        $this->toApi = Helpers::serviceToApi(MusicService::from($this->swap->to_service), $this->user);
     }
 
-    public function failed(\Exception $exception)
+    public function failed(Exception $exception)
     {
         $this->swap->setStatus(SwapStatus::ERROR);
 
