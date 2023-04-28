@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Share extends Model
 {
@@ -15,4 +16,9 @@ class Share extends Model
         "playlist_id",
         "saves"
     ];
+
+    public function playlist(): BelongsTo
+    {
+        return $this->belongsTo(Playlist::class);
+    }
 }

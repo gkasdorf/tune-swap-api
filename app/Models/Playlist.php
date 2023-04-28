@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Playlist extends Model
 {
@@ -27,5 +28,10 @@ class Playlist extends Model
     public function playlistSongs(): HasMany
     {
         return $this->hasMany(PlaylistSong::class);
+    }
+
+    public function share(): HasOne
+    {
+        return $this->hasOne(Share::class);
     }
 }
