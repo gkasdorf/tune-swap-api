@@ -131,6 +131,8 @@ class Spotify
                 error_log(json_encode($e));
             }
         }
+
+        return $parsedTracks;
     }
 
     /**
