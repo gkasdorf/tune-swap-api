@@ -78,13 +78,18 @@ class AppleMusic
         $tracksParsed = [];
 
         foreach ($tracks->data as $track) {
-            $tracksParsed[] = new ParsedSong(
-                $track->attributes->playParams->id,
-                $track->attributes->name,
-                $track->attributes->artistName,
-                $track->attributes->albumName,
-                $track->attributes->artwork->url
-            );
+            try {
+                $tracksParsed[] = new ParsedSong(
+                    $track->attributes->playParams->id,
+                    $track->attributes->name,
+                    $track->attributes->artistName,
+                    $track->attributes->albumName,
+                    $track->attributes->artwork->url ?? null
+                );
+            } catch(\Exception $e) {
+                error_log("Error finding song. Moving on.");
+                error_log(json_encode($e));
+            }
         }
 
         // Return the response
@@ -126,19 +131,19 @@ class AppleMusic
         // Parse the playlists
         $parsedPlaylists = [];
 
-        try {
             // Loop through each
-            foreach ($playlists as $playlist) {
+        foreach ($playlists as $playlist) {
+            try {
                 $parsedPlaylists[] = new ParsedPlaylist(
                     $playlist->attributes->playParams->id,
                     $playlist->attributes->name,
                     $playlist->attributes->description->standard ?? "",
                     null
                 );
+            } catch(\Exception $e) {
+                error_log("Something went wrong with a song. Moving on.");
+                error_log(json_encode($e));
             }
-        } catch (\Exception $e) {
-            error_log($e->getLine());
-            error_log($e->getMessage());
         }
 
         return $parsedPlaylists;
