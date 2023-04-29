@@ -119,6 +119,8 @@ class Spotify
 
         foreach ($tracks as $track) {
             try {
+                if (!$track->track->id) continue;
+
                 $parsedTracks[] = new ParsedSong(
                     $track->track->id,
                     $track->track->name,
@@ -126,7 +128,7 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Error getting song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -198,7 +200,7 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Something went wrong finding a song. Moving on.");
                 error_log(json_encode($e));
             }
