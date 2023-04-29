@@ -4,6 +4,9 @@ namespace App\Jobs;
 
 use App\Helpers\Helpers;
 use App\Http\MusicService;
+use App\Jobs\Swap\SwapHelper;
+use App\Models\Playlist;
+use App\Models\SongNotFound;
 use App\Models\Swap;
 use App\Models\SwapStatus;
 use App\Models\User;
@@ -24,7 +27,8 @@ class ProcessSwap implements ShouldQueue
 
     private mixed $fromApi;
     private mixed $toApi;
-    private string $playlistName;
+
+    private array $trackIds = [];
 
 
     public function __construct(User $user, Swap $swap)
@@ -40,34 +44,74 @@ class ProcessSwap implements ShouldQueue
      */
     public function handle(): void
     {
-        // Set the status to finding music
         $this->swap->setStatus(SwapStatus::FINDING_MUSIC);
 
-        // Create a new normalize instance
-        $normalize = new NormalizePlaylist(
-            $this->swap,
-            $this->user,
-            $this->fromApi,
-            $this->toApi
-        );
+        // Create the playlist
+        $playlist = new Playlist([
+            "name" => $this->swap->playlist_name,
+            "user_id" => $this->user->id,
+            "service" => $this->swap->from_service,
+            "service_id" => $this->swap->from_playlist_id
+        ]);
+        $playlist->save();
 
-        // Normalize the playlist
-        $normalized = $normalize->normalize();
+        // Get tracks from the playlist and save them to the playlist
+        $songs = SwapHelper::createPlaylist($playlist, $this->fromApi);
 
-        // Update the status
+        //error_log(json_encode($songs));
+
+        return;
+
+        $this->swap->total_songs = count($songs);
+        $this->swap->save();
+
+        // Attempt to find each song
+        foreach ($songs as $song) {
+            try {
+                $trackId = SwapHelper::findTrackId($song, MusicService::from($this->swap->to_service), $this->toApi);
+
+                if (!$trackId) {
+                    $this->swap->songs_not_found++;
+                    $notFound = new SongNotFound([
+                        "song_id" => $song->id,
+                        "swap_id" => $this->swap->id
+                    ]);
+
+                    $this->swap->save();
+                    $notFound->save();
+
+                    continue;
+                }
+
+                $this->swap->songs_found++;
+                $this->swap->save();
+
+                $this->trackIds[] = $trackId;
+
+                error_log($trackId);
+
+                usleep(500);
+            } catch (\Exception $e) {
+                error_log("There was an error!");
+                error_log($e->getMessage());
+                error_log($e->getLine());
+                error_log($e->getFile());
+            }
+        }
+
         $this->swap->setStatus(SwapStatus::BUILDING_PLAYLIST);
 
-        // Create the playlist
-        $createRes = $this->toApi->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description ?? "");
+        $create = $this->toApi->createPlaylist(
+            $this->swap->playlist_name,
+            $this->trackIds,
+            $this->swap->description ?? ""
+        );
 
-        // Set the from playlist URL
         $this->swap->setFromData($this->fromApi->getPlaylistUrl($this->swap->from_playlist_id));
-        $this->swap->setToData($createRes);
+        $this->swap->setToData($create);
 
-        // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
 
-        // Send a notification if enabled
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
         }
