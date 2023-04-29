@@ -242,7 +242,7 @@ class Tidal
         // Parse the tracks
         $parsedSongs = [];
 
-        foreach ($response->items as $song) {
+        foreach ($tracks as $song) {
             try {
                 $parsedSongs[] = new ParsedSong(
                     $song->id,
@@ -251,7 +251,7 @@ class Tidal
                     $song->album->title,
                     null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Error finding song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -344,7 +344,7 @@ class Tidal
                     $song->item->album->title,
                     null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Error finding song. Moving on.");
                 error_log(json_encode($e));
             }
