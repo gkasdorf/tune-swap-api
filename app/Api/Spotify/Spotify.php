@@ -24,7 +24,7 @@ class Spotify
     public function __construct(User $user)
     {
         // Check if the access token has expired
-        if ($user->spotify_expiration <= time() - 600) {
+        if ($user->spotify_expiration <= time() - 900) {
             $user->spotify_token = SpotifyAuthentication::refresh($user);
         }
         $this->baseUrl = "https://api.spotify.com/v1";
@@ -34,6 +34,15 @@ class Spotify
         ];
 
         $this->user = $user;
+    }
+
+    private function checkToken(): void
+    {
+        error_log("Checking token.");
+
+        if ($this->user->spotify_expiration <= time() - 600) {
+            $this->user->spotify_token = SpotifyAuthentication::refresh($this->user);
+        }
     }
 
     /**
@@ -119,6 +128,8 @@ class Spotify
 
         foreach ($tracks as $track) {
             try {
+                if (!$track->track->id) continue;
+
                 $parsedTracks[] = new ParsedSong(
                     $track->track->id,
                     $track->track->name,
@@ -126,7 +137,7 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Error getting song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -198,7 +209,7 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Something went wrong finding a song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -213,6 +224,7 @@ class Spotify
      */
     public function search(string $q): ?object
     {
+        $this->checkToken();
 
         $data = [
             "q" => $q,
@@ -246,6 +258,8 @@ class Spotify
      */
     public function createPlaylist(string $name, array $tracks, ?string $description = ""): object
     {
+        $this->checkToken();
+
         // Create our data
         $data = [
             "name" => $name,
