@@ -24,7 +24,7 @@ class Spotify
     public function __construct(User $user)
     {
         // Check if the access token has expired
-        if ($user->spotify_expiration <= time() - 600) {
+        if ($user->spotify_expiration <= time() - 900) {
             $user->spotify_token = SpotifyAuthentication::refresh($user);
         }
         $this->baseUrl = "https://api.spotify.com/v1";
@@ -34,6 +34,15 @@ class Spotify
         ];
 
         $this->user = $user;
+    }
+
+    private function checkToken(): void
+    {
+        error_log("Checking token.");
+
+        if ($this->user->spotify_expiration <= time() - 600) {
+            $this->user->spotify_token = SpotifyAuthentication::refresh($this->user);
+        }
     }
 
     /**
@@ -215,6 +224,7 @@ class Spotify
      */
     public function search(string $q): ?object
     {
+        $this->checkToken();
 
         $data = [
             "q" => $q,
@@ -248,6 +258,8 @@ class Spotify
      */
     public function createPlaylist(string $name, array $tracks, ?string $description = ""): object
     {
+        $this->checkToken();
+
         // Create our data
         $data = [
             "name" => $name,
