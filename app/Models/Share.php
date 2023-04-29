@@ -17,6 +17,10 @@ class Share extends Model
         "saves"
     ];
 
+    protected $casts = [
+        "ready" => "boolean"
+    ];
+
     public function playlist(): BelongsTo
     {
         return $this->belongsTo(Playlist::class);
@@ -24,6 +28,6 @@ class Share extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(Share::class);
+        return $this->belongsTo(User::class);
     }
 }

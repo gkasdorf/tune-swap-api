@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v2\Share;
 use App\Helpers\ApiResponse;
 use App\Helpers\Helpers;
 use App\Http\MusicService;
+use App\Jobs\PrepareShare;
 use App\Models\Playlist;
 use App\Models\Share;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +16,13 @@ class ShareController extends \App\Http\Controllers\Controller
     public function get(Request $request, $id): JsonResponse
     {
         // Grab it
-        $share = Share::where("access_id", $id)->with("playlist")->with("playlist.playlistSongs")->first();
+        $share = Share::where("access_id", $id)
+            ->with("playlist")
+            ->with("playlist.playlistSongs")
+            ->with(["playlist.user" => function ($query) {
+                $query->select("id", "name");
+            }])
+            ->first();
 
         // Check if it exists
         if (!$share) {
@@ -68,6 +75,8 @@ class ShareController extends \App\Http\Controllers\Controller
         $share["user_id"] = $request->user()->id;
         $share->save();
 
+        PrepareShare::dispatch($share);
+
         // Return the share
         return ApiResponse::success([
             "message" => "Share created successfully.",
@@ -75,9 +84,9 @@ class ShareController extends \App\Http\Controllers\Controller
         ]);
     }
 
-    public function delete(Request $request): JsonResponse
+    public function delete(Request $request, $id): JsonResponse
     {
-        $share = Share::where("access_id", $request->input("id"))->first();
+        $share = Share::where("access_id", $id)->first();
 
         if (!$share) {
             return ApiResponse::fail("Share not found.", 404);
