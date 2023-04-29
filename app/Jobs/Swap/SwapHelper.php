@@ -29,7 +29,7 @@ class SwapHelper
 
         foreach ($playlistItems as $item) {
             try {
-                $song = Song::getById(MusicService::from($playlist->service), $playlist->service_id);
+                $song = Song::getById(MusicService::from($playlist->service), $item->id);
 
                 if (!$song) {
                     $song = new Song([
@@ -75,11 +75,16 @@ class SwapHelper
         return $songs;
     }
 
-    public static function findTrackId(Song $song, MusicService $service, mixed $api): ?string
+    public static function findTrackId(Song $song, MusicService $service, mixed $api): ?array
     {
         $checkRes = self::checkIfExists($song, $service);
 
-        if ($checkRes) return $checkRes;
+        if ($checkRes) {
+            return [
+                "trackId" => $checkRes,
+                "usedApi" => false
+            ];
+        }
 
         $term = self::prepareSearch($song, $service);
 
@@ -96,7 +101,10 @@ class SwapHelper
         $song = self::addNewId($song, $search->id, $service);
         $song->save();
 
-        return $search->id;
+        return [
+            "trackId" => $search->id,
+            "usedApi" => true
+        ];
     }
 
     private static function checkIfExists(Song $song, MusicService $service): ?string
@@ -104,15 +112,15 @@ class SwapHelper
         switch ($service) {
             case MusicService::SPOTIFY:
             {
-                return $song?->spotify_id;
+                return $song->spotify_id;
             }
             case MusicService::APPLE_MUSIC:
             {
-                return $song?->apple_music_id;
+                return $song->apple_music_id;
             }
             case MusicService::TIDAL:
             {
-                return $song?->tidal_id;
+                return $song->tidal_id;
             }
             default:
             {

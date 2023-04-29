@@ -58,19 +58,15 @@ class ProcessSwap implements ShouldQueue
         // Get tracks from the playlist and save them to the playlist
         $songs = SwapHelper::createPlaylist($playlist, $this->fromApi);
 
-        //error_log(json_encode($songs));
-
-        return;
-
         $this->swap->total_songs = count($songs);
         $this->swap->save();
 
         // Attempt to find each song
         foreach ($songs as $song) {
             try {
-                $trackId = SwapHelper::findTrackId($song, MusicService::from($this->swap->to_service), $this->toApi);
+                $search = SwapHelper::findTrackId($song, MusicService::from($this->swap->to_service), $this->toApi);
 
-                if (!$trackId) {
+                if (!$search) {
                     $this->swap->songs_not_found++;
                     $notFound = new SongNotFound([
                         "song_id" => $song->id,
@@ -84,13 +80,15 @@ class ProcessSwap implements ShouldQueue
                 }
 
                 $this->swap->songs_found++;
-                $this->swap->save();
 
-                $this->trackIds[] = $trackId;
+                // Let's save some memory and not save every time we update
+                if ($this->swap->songs_found % 15 == 0) {
+                    $this->swap->save();
+                }
 
-                error_log($trackId);
+                $this->trackIds[] = $search["trackId"];
 
-                usleep(500);
+                if ($search["usedApi"]) usleep(500);
             } catch (\Exception $e) {
                 error_log("There was an error!");
                 error_log($e->getMessage());
