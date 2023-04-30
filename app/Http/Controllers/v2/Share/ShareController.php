@@ -40,7 +40,7 @@ class ShareController extends \App\Http\Controllers\Controller
     public function getAll(Request $request): JsonResponse
     {
         return ApiResponse::success([
-            "shares" => $request->user()->shares()->with("playlist")->get()
+            "shares" => $request->user()->shares()->with("playlist")->orderBy("id", "DESC")->get()
         ]);
     }
 
