@@ -87,6 +87,15 @@ class DoCopy implements ShouldQueue
         );
 
         $this->copy->status = SwapStatus::COMPLETED;
+        $this->copy->service_url = $create->url;
         $this->copy->save();
+    }
+
+    public function failed(\Exception $exception)
+    {
+        $this->copy->status = SwapStatus::ERROR;
+        $this->copy->save();
+
+        error_log(json_encode($exception));
     }
 }

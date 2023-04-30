@@ -6,20 +6,17 @@ use App\Http\MusicService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Copy extends Model
 {
     use HasFactory;
 
-    public Share $share;
-    public MusicService $service;
     public int $progress;
-    public SwapStatus $status;
 
     protected $fillable = [
         "user_id",
-        "share_id"
+        "share_id",
+        "service"
     ];
 
     protected $casts = [
@@ -32,8 +29,8 @@ class Copy extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function share(): HasOne
+    public function share(): BelongsTo
     {
-        return $this->hasOne(Share::class);
+        return $this->belongsTo(Share::class);
     }
 }

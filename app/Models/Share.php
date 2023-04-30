@@ -10,8 +10,6 @@ class Share extends Model
 {
     use HasFactory;
 
-    public Playlist $playlist;
-
     protected $fillable = [
         "id",
         "access_id",

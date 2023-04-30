@@ -5,7 +5,9 @@ namespace App\Http\Controllers\v2\Share;
 use App\Helpers\ApiResponse;
 use App\Helpers\Helpers;
 use App\Http\MusicService;
+use App\Jobs\DoCopy;
 use App\Jobs\PrepareShare;
+use App\Models\Copy;
 use App\Models\Playlist;
 use App\Models\Share;
 use Illuminate\Http\JsonResponse;
@@ -99,5 +101,55 @@ class ShareController extends \App\Http\Controllers\Controller
         $share->delete();
 
         return ApiResponse::success("Share deleted successfully.");
+    }
+
+
+    public function startCopy(Request $request, string $id): JsonResponse
+    {
+        try {
+            $data = $request->validate([
+                "service" => "required"
+            ]);
+
+            $share = Share::where("access_id", $id)->first();
+
+            $copy = new Copy([
+                "user_id" => $request->user()->id,
+                "share_id" => $share->id,
+                "service" => $request->input("service")
+            ]);
+            $copy->save();
+
+            DoCopy::dispatch($copy, $request->user());
+
+            return ApiResponse::success([
+                "message" => "Copy started successfully.",
+                "copy" => $copy
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::error([
+                "error" => $e
+            ], 500);
+        }
+    }
+
+    public function getCopy(Request $request, string $id): JsonResponse
+    {
+        try {
+            $copy = Copy::where("id", $id)
+                ->with("share")
+                ->with("share.playlist")
+                ->first();
+
+            if (!$copy) {
+                return ApiResponse::fail("Copy not found.", 404);
+            }
+
+            return ApiResponse::success([
+                "copy" => $copy
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::error("An unexpected error has occurred.");
+        }
     }
 }

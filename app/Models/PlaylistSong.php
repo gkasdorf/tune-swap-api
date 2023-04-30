@@ -5,20 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PlaylistSong extends Model
 {
     use HasFactory;
-
-    public Song $song;
 
     protected $fillable = [
         "playlist_id",
         "song_id"
     ];
 
-    public static function createLink($playlistId, $songId)
+    public static function createLink($playlistId, $songId): void
     {
         $link = new PlaylistSong([
             "playlist_id" => $playlistId,
@@ -33,8 +30,8 @@ class PlaylistSong extends Model
         return $this->belongsTo(Playlist::class);
     }
 
-    public function song(): HasOne
+    public function song(): BelongsTo
     {
-        return $this->hasOne(Song::class);
+        return $this->belongsTo(Song::class);
     }
 }
