@@ -134,4 +134,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Share::class, "user_id", "id");
     }
+
+    public function copies(): HasMany
+    {
+        return $this->hasMany(Copy::class, "user_id", "id");
+    }
 }

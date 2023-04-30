@@ -72,7 +72,7 @@ class DoCopy implements ShouldQueue
             $current++;
             $this->copy->progress = round(($current / $total) * 100);
 
-            if ($current % 15 == 0) {
+            if ($current % 10 == 0) {
                 $this->copy->save();
             }
         }

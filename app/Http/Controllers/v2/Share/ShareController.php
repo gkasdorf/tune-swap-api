@@ -152,4 +152,21 @@ class ShareController extends \App\Http\Controllers\Controller
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
+
+    public function getCopies(Request $request): JsonResponse
+    {
+        try {
+            $copies = $request->user()->copies()
+                ->with("share")
+                ->with("share.playlist")
+                ->orderBy("id", "DESC")
+                ->get();
+
+            return ApiResponse::success([
+                "copies" => $copies
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::error("An unexpected error has occurred.");
+        }
+    }
 }
