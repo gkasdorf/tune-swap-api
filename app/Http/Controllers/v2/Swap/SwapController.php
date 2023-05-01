@@ -21,6 +21,11 @@ class SwapController
             "description" => "nullable|string"
         ]);
 
+        //TODO Add this whenever migration to 1.2 is complete
+//        if ($request->user()->is_running) {
+//            return ApiResponse::fail("You currently have a swap running.");
+//        }
+
         try {
             $data["user_id"] = $request->user()->id;
             $data["status"] = SwapStatus::CREATED;
@@ -108,7 +113,7 @@ class SwapController
                 ->where("status", SwapStatus::FINDING_MUSIC)
                 ->count();
 
-            ApiResponse::success([
+            return ApiResponse::success([
                 "running" => $x > 0
             ]);
         } catch (\Exception $e) {

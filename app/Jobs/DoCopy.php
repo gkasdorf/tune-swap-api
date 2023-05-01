@@ -46,6 +46,8 @@ class DoCopy implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->user->setIsRunning(true);
+
         $playlistSongs = $this->playlist->playlistSongs()->get();
 
         $total = count($playlistSongs);
@@ -89,12 +91,16 @@ class DoCopy implements ShouldQueue
         $this->copy->status = SwapStatus::COMPLETED;
         $this->copy->service_url = $create->url;
         $this->copy->save();
+
+        $this->user->setIsRunning(false);
     }
 
     public function failed(\Exception $exception)
     {
         $this->copy->status = SwapStatus::ERROR;
         $this->copy->save();
+
+        $this->user->setIsRunning(false);
 
         error_log(json_encode($exception));
     }

@@ -107,9 +107,14 @@ class ShareController extends \App\Http\Controllers\Controller
     public function startCopy(Request $request, string $id): JsonResponse
     {
         try {
-            $data = $request->validate([
+            $request->validate([
                 "service" => "required"
             ]);
+
+            //TODO Add this whenever migration to 1.2 is complete
+//            if ($request->user()->is_running) {
+//                return ApiResponse::fail("You already have a job running.");
+//            }
 
             $share = Share::where("access_id", $id)->first();
 

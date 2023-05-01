@@ -44,6 +44,7 @@ class ProcessSwap implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->user->setIsRunning(true);
         $this->swap->setStatus(SwapStatus::FINDING_MUSIC);
 
         // Create the playlist
@@ -109,6 +110,7 @@ class ProcessSwap implements ShouldQueue
         $this->swap->setToData($create);
 
         $this->swap->setStatus(SwapStatus::COMPLETED);
+        $this->user->setIsRunning(false);
 
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
@@ -127,6 +129,7 @@ class ProcessSwap implements ShouldQueue
     public function failed(Exception $exception)
     {
         $this->swap->setStatus(SwapStatus::ERROR);
+        $this->user->setIsRunning(false);
 
         error_log(json_encode($exception));
     }

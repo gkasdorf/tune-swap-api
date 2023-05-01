@@ -27,4 +27,11 @@ class HasController extends \App\Http\Controllers\Controller
             "has" => $request->user()->hasTidal()
         ]);
     }
+
+    public function isRunning(Request $request)
+    {
+        return ApiResponse::success([
+            "running" => $request->user()->is_running
+        ]);
+    }
 }

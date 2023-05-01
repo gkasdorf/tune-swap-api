@@ -39,6 +39,8 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/user/has/applemusic", [\App\Http\Controllers\v2\User\HasController::class, "hasAppleMusic"]);
     Route::get("/v2/user/has/tidal", [\App\Http\Controllers\v2\User\HasController::class, "hasTidal"]);
 
+    Route::get("/v2/user/running", [\App\Http\Controllers\v2\User\HasController::class, "isRunning"]);
+
     // Notification routes
     Route::get("/v2/user/notifications/ios/enable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableIos"]);
     Route::get("/v2/user/notifications/ios/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "disableIos"]);

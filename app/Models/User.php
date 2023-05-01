@@ -45,6 +45,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_running' => 'boolean'
     ];
 
     public function getName(): string
@@ -118,6 +119,12 @@ class User extends Authenticatable
     public function routeNotificationForApn()
     {
         return $this->iosDeviceTokens();
+    }
+
+    public function setIsRunning($status)
+    {
+        $this->is_running = $status;
+        $this->save();
     }
 
     public function swaps(): HasMany
