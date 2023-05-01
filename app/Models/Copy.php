@@ -11,8 +11,6 @@ class Copy extends Model
 {
     use HasFactory;
 
-    public int $progress;
-
     protected $fillable = [
         "user_id",
         "share_id",
