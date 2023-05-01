@@ -29,7 +29,7 @@ Route::post("/v2/user/signup", [\App\Http\Controllers\v2\User\SignupController::
 Route::post("/v2/user/login", [\App\Http\Controllers\v2\User\LoginController::class, "check"]);
 Route::get("/v2/user/verify", [\App\Http\Controllers\v2\User\LoginController::class, "verify"]);
 
-Route::get("/v2/settings/maintenance", [SettingsController::class, "maintenance"]);
+Route::get("/v2/settings/maintenance", [SettingsController::class, "getMaintenance"]);
 
 Route::post("/v2/user/login/apple", [\App\Http\Controllers\v2\User\LoginController::class, "doAppleAuth"]);
 
