@@ -8,6 +8,7 @@ use App\Http\Controllers\v1\Spotify\SpotifyController;
 use App\Http\Controllers\v1\SwapController;
 use App\Http\Controllers\v1\Tidal\TidalController;
 use App\Http\Controllers\v1\UserController;
+use App\Http\Controllers\v2\Share\ShareController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,6 +56,18 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/swap", [\App\Http\Controllers\v2\Swap\SwapController::class, "getAll"]);
     Route::get("/v2/swap/{id}", [\App\Http\Controllers\v2\Swap\SwapController::class, "get"]);
     Route::get("/v2/swap/{id}/notfound", [\App\Http\Controllers\v2\Swap\SwapController::class, "getNotFound"]);
+
+    // Share Routes
+    Route::get("/v2/share", [ShareController::class, "getAll"]);
+    Route::post("/v2/share/create", [ShareController::class, "add"]);
+    Route::get("/v2/share/copy", [ShareController::class, "getCopies"]);
+
+    Route::get("/v2/share/{id}", [ShareController::class, "get"]);
+    Route::get("/v2/share/{id}/delete", [ShareController::class, "delete"]);
+
+    Route::post("/v2/share/{id}/copy", [ShareController::class, "startCopy"]);
+    Route::get("/v2/share/copy/{id}", [ShareController::class, "getCopy"]);
+
 
     // Spotify routes
     Route::get("/v2/spotify/authUrl", [\App\Http\Controllers\v2\Apps\Spotify\SpotifyController::class, "getAuthUrl"]);

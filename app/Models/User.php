@@ -129,4 +129,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Playlist::class);
     }
+
+    public function shares(): HasMany
+    {
+        return $this->hasMany(Share::class, "user_id", "id");
+    }
+
+    public function copies(): HasMany
+    {
+        return $this->hasMany(Copy::class, "user_id", "id");
+    }
 }

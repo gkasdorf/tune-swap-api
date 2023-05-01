@@ -2,14 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Api\AppleMusic\AppleMusic;
-use App\Api\Spotify\Spotify;
-use App\Api\Tidal\Tidal;
+use App\Helpers\Helpers;
 use App\Http\MusicService;
+use App\Jobs\Swap\SwapHelper;
+use App\Models\Playlist;
+use App\Models\SongNotFound;
 use App\Models\Swap;
 use App\Models\SwapStatus;
 use App\Models\User;
 use App\Notifications\SwapComplete;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,7 +27,8 @@ class ProcessSwap implements ShouldQueue
 
     private mixed $fromApi;
     private mixed $toApi;
-    private string $playlistName;
+
+    private array $trackIds = [];
 
 
     public function __construct(User $user, Swap $swap)
@@ -41,83 +44,87 @@ class ProcessSwap implements ShouldQueue
      */
     public function handle(): void
     {
-        // Set the status to finding music
         $this->swap->setStatus(SwapStatus::FINDING_MUSIC);
 
-        // Create a new normalize instance
-        $normalize = new NormalizePlaylist(
-            $this->swap,
-            $this->user,
-            $this->fromApi,
-            $this->toApi
-        );
+        // Create the playlist
+        $playlist = new Playlist([
+            "name" => $this->swap->playlist_name,
+            "user_id" => $this->user->id,
+            "service" => $this->swap->from_service,
+            "service_id" => $this->swap->from_playlist_id
+        ]);
+        $playlist->save();
 
-        // Normalize the playlist
-        $normalized = $normalize->normalize();
+        // Get tracks from the playlist and save them to the playlist
+        $songs = SwapHelper::createPlaylist($playlist, $this->fromApi);
 
-        // Update the status
+        $this->swap->total_songs = count($songs);
+        $this->swap->save();
+
+        // Attempt to find each song
+        foreach ($songs as $song) {
+            try {
+                $search = SwapHelper::findTrackId($song, MusicService::from($this->swap->to_service), $this->toApi);
+
+                if (!$search) {
+                    $this->swap->songs_not_found++;
+                    $notFound = new SongNotFound([
+                        "song_id" => $song->id,
+                        "swap_id" => $this->swap->id
+                    ]);
+
+                    $this->swap->save();
+                    $notFound->save();
+
+                    continue;
+                }
+
+                $this->swap->songs_found++;
+
+                // Let's save some memory and not save every time we update
+                if ($this->swap->songs_found % 15 == 0) {
+                    $this->swap->save();
+                }
+
+                $this->trackIds[] = $search["trackId"];
+
+                if ($search["usedApi"]) usleep(500);
+            } catch (\Exception $e) {
+                error_log("There was an error!");
+                error_log($e->getMessage());
+                error_log($e->getLine());
+                error_log($e->getFile());
+            }
+        }
+
         $this->swap->setStatus(SwapStatus::BUILDING_PLAYLIST);
 
-        // Create the playlist
-        $createRes = $this->toApi->createPlaylist($this->swap->playlist_name, $normalized["ids"], $this->swap->description ?? "");
+        $create = $this->toApi->createPlaylist(
+            $this->swap->playlist_name,
+            $this->trackIds,
+            $this->swap->description ?? ""
+        );
 
-        // Set the from playlist URL
         $this->swap->setFromData($this->fromApi->getPlaylistUrl($this->swap->from_playlist_id));
-        $this->swap->setToData($createRes);
+        $this->swap->setToData($create);
 
-        // Update the status
         $this->swap->setStatus(SwapStatus::COMPLETED);
 
-        // Send a notification if enabled
         if ($this->user->iosNotificationsEnabled()) {
             $this->user->notify(new SwapComplete($this->swap));
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function setApis()
     {
-        switch (MusicService::from($this->swap->from_service)) {
-            case MusicService::SPOTIFY:
-            {
-                $this->fromApi = new Spotify($this->user);
-                break;
-            }
-            case MusicService::APPLE_MUSIC:
-            {
-                $this->fromApi = new AppleMusic($this->user);
-                break;
-            }
-            case MusicService::TIDAL:
-            {
-                $this->fromApi = new Tidal($this->user);
-                break;
-            }
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
-
-        switch (MusicService::from($this->swap->to_service)) {
-            case MusicService::SPOTIFY:
-            {
-                $this->toApi = new Spotify($this->user);
-                break;
-            }
-            case MusicService::APPLE_MUSIC:
-            {
-                $this->toApi = new AppleMusic($this->user);
-                break;
-            }
-            case MusicService::TIDAL:
-            {
-                $this->toApi = new Tidal($this->user);
-                break;
-            }
-            case MusicService::PANDORA:
-                throw new \Exception('To be implemented');
-        }
+        $this->fromApi = Helpers::serviceToApi(MusicService::from($this->swap->from_service), $this->user);
+        $this->toApi = Helpers::serviceToApi(MusicService::from($this->swap->to_service), $this->user);
     }
 
-    public function failed(\Exception $exception)
+    public function failed(Exception $exception)
     {
         $this->swap->setStatus(SwapStatus::ERROR);
 

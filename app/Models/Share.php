@@ -6,32 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PlaylistSong extends Model
+class Share extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        "id",
+        "access_id",
         "playlist_id",
-        "song_id"
+        "saves"
     ];
 
-    public static function createLink($playlistId, $songId): void
-    {
-        $link = new PlaylistSong([
-            "playlist_id" => $playlistId,
-            "song_id" => $songId
-        ]);
-
-        $link->save();
-    }
+    protected $casts = [
+        "ready" => "boolean"
+    ];
 
     public function playlist(): BelongsTo
     {
         return $this->belongsTo(Playlist::class);
     }
 
-    public function song(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Song::class);
+        return $this->belongsTo(User::class);
     }
 }

@@ -100,4 +100,19 @@ class SwapController
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
+
+    public function hasRunningSwap(Request $request): JsonResponse
+    {
+        try {
+            $x = Swap::where("user_id", $request->user()->id)
+                ->where("status", SwapStatus::FINDING_MUSIC)
+                ->count();
+
+            ApiResponse::success([
+                "running" => $x > 0
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::error("An unexpected error has occurred.");
+        }
+    }
 }
