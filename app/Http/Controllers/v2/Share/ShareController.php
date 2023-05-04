@@ -144,6 +144,9 @@ class ShareController extends \App\Http\Controllers\Controller
             $copy = Copy::where("id", $id)
                 ->with("share")
                 ->with("share.playlist")
+                ->with(["share.playlist.user" => function ($query) {
+                    $query->select("id", "name");
+                }])
                 ->first();
 
             if (!$copy) {
