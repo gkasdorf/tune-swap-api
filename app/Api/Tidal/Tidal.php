@@ -21,6 +21,8 @@ class Tidal
     private static string $tokenUrl = "https://login.tidal.com/oauth2/token";
 
     private static string $clientId = "CzET4vdadNUFQ5JU";
+    private static string $androidClientId = "JEdLAXtZAvJYmDgY";
+
 
     private User $user;
 
@@ -66,8 +68,12 @@ class Tidal
      * @return array
      * @throws \Exception
      */
-    public static function createAuthUrl(): array
+    public static function createAuthUrl($android = false): array
     {
+        // 5/3 Here we are again! Have to make some modifications for android users. I don't feel like breaking ios and
+        // having to figure that out, so we are just going to add a get var (?android=true) and modify the options
+        // HeRe wE gO!1!1!
+
         // Generate a challenge code and verifier
         $verifier_bytes = random_bytes(64);
         $codeVerifier = rtrim(strtr(base64_encode($verifier_bytes), "+/", "-_"), "=");
@@ -75,14 +81,14 @@ class Tidal
         $codeChallenge = rtrim(strtr(base64_encode($challengeBytes), "+/", "-_"), "=");
 
         $params = [
-            "appMode" => "WEB",
+            "appMode" => $android ? "android" : "WEB",
             // this isn't sensitive as it isn't our ID. Should it be in the .env? Yea, but we will put it here so that
             // anyone who ever runs across this and needs it can have it :)
-            "client_id" => self::$clientId,
+            "client_id" => $android ? self::$androidClientId : self::$clientId,
             "code_challenge" => $codeChallenge,
             "code_challenge_method" => "S256",
             "lang" => "en",
-            "redirect_uri" => "https://listen.tidal.com/login/auth", // Obviously your redirect_uri can be whatever you
+            "redirect_uri" => $android ? "https://tidal.com/android/login/auth" : "https://listen.tidal.com/login/auth", // Obviously your redirect_uri can be whatever you
             // want it to be as long as it is whitelisted
             // as valid by Tidal. Most of their URLs though
             // deeplink to either the Android, Desktop, or
@@ -110,15 +116,15 @@ class Tidal
      * @param string $codeVerifier
      * @return mixed
      */
-    public static function auth(string $code, string $codeVerifier): mixed
+    public static function auth(string $code, string $codeVerifier, bool $android): mixed
     {
         // Create our data
         $data = [
-            "client_id" => self::$clientId,
+            "client_id" => $android ? self::$androidClientId : self::$clientId,
             "code" => $code,
             "code_verifier" => $codeVerifier,
             "grant_type" => "authorization_code",
-            "redirect_uri" => "https://listen.tidal.com/login/auth",
+            "redirect_uri" => $android ? "https://tidal.com/android/login/auth" : "https://listen.tidal.com/login/auth", // Obviously your redirect_uri can be whatever you
             "scope" => "r_usr w_usr"
         ];
 

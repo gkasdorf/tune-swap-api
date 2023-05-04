@@ -11,9 +11,11 @@ class TidalController extends \App\Http\Controllers\Controller
 {
     public function getAuthUrl(Request $request): JsonResponse
     {
+        $android = $request->input("android");
+
         try {
             return ApiResponse::success([
-                "url" => Tidal::createAuthUrl()
+                "url" => Tidal::createAuthUrl($android == "true")
             ]);
         } catch (\Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");
@@ -26,8 +28,9 @@ class TidalController extends \App\Http\Controllers\Controller
             $user = $request->user();
             $code = $request->code;
             $codeVerifier = $request->codeVerifier;
+            $android = $request->android == "true";
 
-            $response = Tidal::auth($code, $codeVerifier);
+            $response = Tidal::auth($code, $codeVerifier, $android);
 
             if (!$response) {
                 return ApiResponse::error("There was an error authenticating with Tidal.");
