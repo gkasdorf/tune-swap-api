@@ -56,7 +56,9 @@ class AppleMusicController extends \App\Http\Controllers\Controller
                 return redirect(env("CORS_URL") . "/app/user/auth/applemusic?complete=true");
             }
 
-            return redirect("tuneswap://home?success=true");
+            error_log("Sup");
+
+            return redirect("tuneswap://home/share/AppleMusic?success=true");
         } catch (\Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
