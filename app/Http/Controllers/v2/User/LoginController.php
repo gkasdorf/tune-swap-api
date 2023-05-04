@@ -67,7 +67,13 @@ class LoginController extends \App\Http\Controllers\Controller
                 return ApiResponse::fail("Invalid token.", 401);
             }
 
-            return ApiResponse::success();
+            return ApiResponse::success([
+                "user" => [
+                    "email" => $user->email,
+                    "name" => $user->name,
+                    "token" => $token
+                ]
+            ]);
         } catch (\Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
