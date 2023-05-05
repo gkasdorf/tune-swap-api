@@ -33,4 +33,31 @@ class NotificationsController extends \App\Http\Controllers\Controller
             "enabled" => $request->user()->iosNotificationsEnabled()
         ]);
     }
+
+    public function enableAndroid(Request $request)
+    {
+        if (!isset($request->token))
+            return ApiResponse::fail("No token provided.");
+
+        $request->user()->addAndroidDeviceToken($request->token);
+
+        return ApiResponse::success();
+    }
+
+    public function disableAndroid(Request $request)
+    {
+        if (!isset($request->token))
+            return ApiResponse::fail("No token provided.");
+
+        $request->user()->removeAndroidDeviceToken($request->token);
+
+        return ApiResponse::success();
+    }
+
+    public function androidEnabled(Request $request)
+    {
+        return ApiResponse::success([
+            "enabled" => $request->user()->androidNotificationsEnabled()
+        ]);
+    }
 }

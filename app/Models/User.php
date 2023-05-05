@@ -116,6 +116,54 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function androidNotificationsEnabled(): bool
+    {
+        $tokens = $this->androidDeviceTokens();
+
+        if (!$tokens || count($tokens) < 1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function androidDeviceTokens(): ?array
+    {
+        if ($this->android_device_tokens) {
+            return json_decode($this->android_device_tokens);
+        }
+
+        return null;
+    }
+
+    public function addAndroidDeviceToken(string $token): void
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        if ($tokens && in_array($token, $tokens)) {
+            return;
+        }
+
+        $tokens[] = $token;
+
+        $this->android_device_tokens = json_encode($tokens);
+        $this->save();
+    }
+
+    public function removeAndroidDeviceToken(string $token): void
+    {
+        $tokens = $this->iosDeviceTokens();
+
+        $key = array_search($token, $tokens);
+
+        if ($key !== false) {
+            unset($tokens[$key]);
+        }
+
+        $this->android_device_tokens = json_encode($tokens);
+        $this->save();
+    }
+
     public function routeNotificationForApn()
     {
         return $this->iosDeviceTokens();
