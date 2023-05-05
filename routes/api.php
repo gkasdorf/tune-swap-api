@@ -68,7 +68,6 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post("/v2/share/create", [ShareController::class, "add"]);
     Route::get("/v2/share/copy", [ShareController::class, "getCopies"]);
 
-    Route::get("/v2/share/{id}", [ShareController::class, "get"]);
     Route::get("/v2/share/{id}/delete", [ShareController::class, "delete"]);
 
     Route::post("/v2/share/{id}/copy", [ShareController::class, "startCopy"]);
@@ -94,6 +93,8 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::get("/v2/tidal/me/playlists", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getUserPlaylists"]);
 });
+
+Route::get("/v2/share/{id}", [ShareController::class, "get"]);
 
 
 // V1 ROUTES DEPRECATED

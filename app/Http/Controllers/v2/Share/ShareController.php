@@ -33,7 +33,7 @@ class ShareController extends \App\Http\Controllers\Controller
 
         return ApiResponse::success([
             "share" => $share,
-            "isOwner" => $share->user_id == $request->user()->id // Send this over so we know if we should have owner UI
+            "isOwner" => $share->user_id == $request->user()?->id // Send this over so we know if we should have owner UI
         ]);
     }
 
