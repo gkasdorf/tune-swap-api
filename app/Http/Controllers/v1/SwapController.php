@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessSwapOld;
 use App\Models\Swap;
-use App\Models\SwapStatus;
+use App\Types\SwapStatus;
 use Illuminate\Http\Request;
 
 class SwapController extends Controller

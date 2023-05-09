@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Types;
 
 enum SwapStatus: string
 {

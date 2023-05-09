@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v2\Swap;
 use App\Helpers\ApiResponse;
 use App\Jobs\ProcessSwap;
 use App\Models\Swap;
-use App\Models\SwapStatus;
+use App\Types\SwapStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

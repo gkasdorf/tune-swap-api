@@ -2,9 +2,9 @@
 
 namespace App\Api\Tidal;
 
-use App\Models\ParsedPlaylist;
-use App\Models\ParsedSong;
 use App\Models\User;
+use App\Types\ParsedPlaylist;
+use App\Types\ParsedSong;
 use Illuminate\Support\Facades\Http;
 
 class Tidal
