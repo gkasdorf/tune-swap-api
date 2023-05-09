@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AppleMusicController extends Controller
@@ -26,6 +27,11 @@ class AppleMusicController extends Controller
         } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
+    }
+
+    public function authPage(Request $request): View
+    {
+        return view("appleMusicAuth", ["apiToken" => $request->input("apiToken")]);
     }
 
     /**

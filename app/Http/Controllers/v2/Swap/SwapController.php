@@ -60,7 +60,7 @@ class SwapController
                 "total" => $total,
                 "swaps" => count($swaps) > 0 ? $swaps : []
             ]);
-        } catch (Exception) {
+        } catch (Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

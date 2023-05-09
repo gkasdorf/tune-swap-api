@@ -35,6 +35,10 @@ Route::get("/v2/settings/maintenance", [SettingsController::class, "getMaintenan
 
 Route::post("/v2/user/login/apple", [LoginController::class, "doAppleAuth"]);
 
+
+Route::get("/applemusic/authPage", [AppleMusicController::class, "authPage"]);
+Route::get("/applemusic/auth", [AppleMusicController::class, "auth"]);
+
 Route::middleware("auth:sanctum")->group(function () {
     // Has Routes
     Route::get("/v2/user/has/spotify", [HasController::class, "hasSpotify"]);
