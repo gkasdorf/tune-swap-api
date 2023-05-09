@@ -85,9 +85,6 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/spotify/auth", [SpotifyController::class, "auth"]);
 
     Route::get("/v2/spotify/me/playlists", [SpotifyController::class, "getUserPlaylists"]);
-    //Route::get("/spotify/me/playlist/{id}", [SpotifyController::class, "playlist"]);
-    //Route::get("/spotify/playlist/{id}", [SpotifyController::class, "playlist"]);
-    //Route::get("/spotify/me/library", [SpotifyController::class, "library"]);
 
     Route::get("/v2/applemusic/me/playlists", [AppleMusicController::class, "getUserPlaylists"]);
 
