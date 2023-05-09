@@ -86,7 +86,7 @@ class AppleMusic
                     $track->attributes->albumName,
                     $track->attributes->artwork->url ?? null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Error finding song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -131,7 +131,7 @@ class AppleMusic
         // Parse the playlists
         $parsedPlaylists = [];
 
-            // Loop through each
+        // Loop through each
         foreach ($playlists as $playlist) {
             try {
                 $parsedPlaylists[] = new ParsedPlaylist(
@@ -140,7 +140,7 @@ class AppleMusic
                     $playlist->attributes->description->standard ?? "",
                     null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Something went wrong with a song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -198,7 +198,7 @@ class AppleMusic
                     $song->attributes->albumName,
                     $song->attributes->artwork->url ?? null
                 );
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Something went wrong finding a song.");
                 error_log(json_encode($e));
             }
