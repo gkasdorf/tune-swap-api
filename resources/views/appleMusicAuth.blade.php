@@ -10,11 +10,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script>
-        window.addEventListener("musickitloaded", () => {
+        // window.addEventListener("musickitloaded", () => {
+        //     configure();
+        //
+        //     console.log("MusicKit Loaded");
+        // });
+        setTimeout(() => {
             configure();
-
-            console.log("MusicKit Loaded");
-        });
+        }, 500);
 
         const configure = () => {
             MusicKit.configure({

@@ -29,7 +29,7 @@ Route::post("/v2/user/signup", [\App\Http\Controllers\v2\User\SignupController::
 Route::post("/v2/user/login", [\App\Http\Controllers\v2\User\LoginController::class, "check"]);
 Route::get("/v2/user/verify", [\App\Http\Controllers\v2\User\LoginController::class, "verify"]);
 
-Route::get("/v2/settings/maintenance", [SettingsController::class, "maintenance"]);
+Route::get("/v2/settings/maintenance", [SettingsController::class, "getMaintenance"]);
 
 Route::post("/v2/user/login/apple", [\App\Http\Controllers\v2\User\LoginController::class, "doAppleAuth"]);
 
@@ -39,10 +39,16 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/user/has/applemusic", [\App\Http\Controllers\v2\User\HasController::class, "hasAppleMusic"]);
     Route::get("/v2/user/has/tidal", [\App\Http\Controllers\v2\User\HasController::class, "hasTidal"]);
 
+    Route::get("/v2/user/running", [\App\Http\Controllers\v2\User\HasController::class, "isRunning"]);
+
     // Notification routes
     Route::get("/v2/user/notifications/ios/enable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableIos"]);
     Route::get("/v2/user/notifications/ios/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "disableIos"]);
     Route::get("/v2/user/notifications/ios/enabled", [\App\Http\Controllers\v2\User\NotificationsController::class, "iosEnabled"]);
+
+    Route::get("/v2/user/notifications/android/enable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableAndroid"]);
+    Route::get("/v2/user/notifications/android/disable", [\App\Http\Controllers\v2\User\NotificationsController::class, "enableIos"]);
+    Route::get("/v2/user/notifications/android/enabled", [\App\Http\Controllers\v2\User\NotificationsController::class, "androidEnabled"]);
 
     // Settings routes
     Route::post("/v2/user/settings/name-email", [\App\Http\Controllers\v2\User\SettingsController::class, "updateNameEmail"]);
@@ -62,7 +68,6 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post("/v2/share/create", [ShareController::class, "add"]);
     Route::get("/v2/share/copy", [ShareController::class, "getCopies"]);
 
-    Route::get("/v2/share/{id}", [ShareController::class, "get"]);
     Route::get("/v2/share/{id}/delete", [ShareController::class, "delete"]);
 
     Route::post("/v2/share/{id}/copy", [ShareController::class, "startCopy"]);
@@ -88,6 +93,8 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::get("/v2/tidal/me/playlists", [\App\Http\Controllers\v2\Apps\Tidal\TidalController::class, "getUserPlaylists"]);
 });
+
+Route::get("/v2/share/{id}", [ShareController::class, "get"]);
 
 
 // V1 ROUTES DEPRECATED
