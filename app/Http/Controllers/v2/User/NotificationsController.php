@@ -15,7 +15,7 @@ class NotificationsController extends \App\Http\Controllers\Controller
 
         $request->user()->addIosDeviceToken($request->token);
 
-        return ApiResponse::success();
+        return ApiResponse::success("Notifications enabled.");
     }
 
     public function disableIos(Request $request): JsonResponse
@@ -25,7 +25,7 @@ class NotificationsController extends \App\Http\Controllers\Controller
 
         $request->user()->removeIosDeviceToken($request->token);
 
-        return ApiResponse::success();
+        return ApiResponse::success("Notifications disabled.");
     }
 
     public function iosEnabled(Request $request): JsonResponse
