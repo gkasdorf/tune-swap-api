@@ -9,6 +9,7 @@ namespace App\Api\Spotify;
 use App\Models\User;
 use App\Types\ParsedPlaylist;
 use App\Types\ParsedSong;
+use Exception;
 use Illuminate\Support\Facades\Http;
 
 class Spotify
@@ -91,7 +92,7 @@ class Spotify
                     $playlist->images[0]->url ?? null
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log(json_encode($e));
         }
 
@@ -137,7 +138,7 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Error getting song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -150,7 +151,7 @@ class Spotify
      * @param string $id The playlist's id
      * @return string The name of the playlist
      */
-    public function getPlaylistName($id): string
+    public function getPlaylistName(string $id): string
     {
         $url = $this->baseUrl . "/playlists/" . $id;
 
@@ -209,7 +210,7 @@ class Spotify
                     $track->track->album->name,
                     $track->track->album->images[0]->url ?? null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Something went wrong finding a song. Moving on.");
                 error_log(json_encode($e));
             }

@@ -26,6 +26,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $tidal_refresh_token
  * @property int $tidal_expiration
  * @property string $tidal_email
+ * @property string $tidal_user_id
  * @property string $tidal_username
  * @property string $ios_device_tokens
  * @property bool $ios_notifications_enabled

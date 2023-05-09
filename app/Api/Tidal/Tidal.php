@@ -5,13 +5,12 @@ namespace App\Api\Tidal;
 use App\Models\User;
 use App\Types\ParsedPlaylist;
 use App\Types\ParsedSong;
+use Exception;
 use Illuminate\Support\Facades\Http;
 
 class Tidal
 {
     private array $header = [];
-    private string $countryCode = "US";
-    private string $locale = "en_US";
 
     private string $baseUrlv1 = "https://api.tidal.com/v1";
     private string $baseUrlv2 = "https://api.tidal.com/v2";
@@ -65,10 +64,11 @@ class Tidal
 
     /**
      * Returns the current Tidal auth url
+     * @param bool $android
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public static function createAuthUrl($android = false): array
+    public static function createAuthUrl(bool $android = false): array
     {
         // 5/3 Here we are again! Have to make some modifications for android users. I don't feel like breaking ios and
         // having to figure that out, so we are just going to add a get var (?android=true) and modify the options
@@ -114,6 +114,7 @@ class Tidal
      * Performs authentication with Tidal
      * @param string $code
      * @param string $codeVerifier
+     * @param bool $android
      * @return mixed
      */
     public static function auth(string $code, string $codeVerifier, bool $android): mixed
@@ -257,7 +258,7 @@ class Tidal
                     $song->album->title,
                     null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Error finding song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -350,7 +351,7 @@ class Tidal
                     $song->item->album->title,
                     null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Error finding song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -392,7 +393,7 @@ class Tidal
                 "album" => $song->album->title,
                 "artwork" => null
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
