@@ -16,7 +16,7 @@ class SettingsController
      */
     public function updatePassword(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             "password" => "required",
             "newPassword" => "required",
             "newPasswordConfirmed" => "required|same:newPassword"
@@ -24,11 +24,11 @@ class SettingsController
 
         $user = $request->user();
 
-        if (!Hash::check($request->password, $user->password)) {
+        if (!Hash::check($request->input("password"), $user->password)) {
             return ApiResponse::fail("Invalid password.", 401);
         }
 
-        $user->password = Hash::make($request->newPassword);
+        $user->password = Hash::make($request->input("newPassword"));
         $user->save();
 
         return ApiResponse::success("Password has been updated.");
@@ -41,7 +41,7 @@ class SettingsController
      */
     public function updateNameEmail(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             "name" => "required",
             "email" => "required|unique:users,email",
             "password" => "required"
@@ -49,12 +49,12 @@ class SettingsController
 
         $user = $request->user();
 
-        if (!Hash::check($request->password, $user->password)) {
+        if (!Hash::check($request->input("password"), $user->password)) {
             return ApiResponse::fail("Invalid password.", 401);
         }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
+        $user->name = $request->input("name");
+        $user->email = $request->input("email");
 
         return ApiResponse::success("User has been updated.");
     }

@@ -6,6 +6,7 @@ use App\Helpers\ApiResponse;
 use App\Jobs\ProcessSwap;
 use App\Models\Swap;
 use App\Types\SwapStatus;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,7 +40,7 @@ class SwapController
                 "swapId" => $swap->id,
                 "swapStatus" => $swap->status
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e->getMessage());
             error_log($e->getLine());
             return ApiResponse::error("An unexpected error has occurred.");
@@ -59,7 +60,7 @@ class SwapController
                 "total" => $total,
                 "swaps" => count($swaps) > 0 ? $swaps : []
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -80,7 +81,7 @@ class SwapController
             return ApiResponse::success([
                 "swap" => $swap
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -101,7 +102,7 @@ class SwapController
             return ApiResponse::success([
                 "swap" => $notFound
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -116,7 +117,7 @@ class SwapController
             return ApiResponse::success([
                 "running" => $x > 0
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

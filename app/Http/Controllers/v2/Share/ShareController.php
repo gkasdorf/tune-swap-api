@@ -4,16 +4,18 @@ namespace App\Http\Controllers\v2\Share;
 
 use App\Helpers\ApiResponse;
 use App\Helpers\Helpers;
+use App\Http\Controllers\Controller;
 use App\Http\MusicService;
 use App\Jobs\DoCopy;
 use App\Jobs\PrepareShare;
 use App\Models\Copy;
 use App\Models\Playlist;
 use App\Models\Share;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ShareController extends \App\Http\Controllers\Controller
+class ShareController extends Controller
 {
     public function get(Request $request, $id): JsonResponse
     {
@@ -57,7 +59,7 @@ class ShareController extends \App\Http\Controllers\Controller
         // Try to set the playlist name
         try {
             $playlistName = Helpers::serviceToApi(MusicService::from($data["playlist_service"]), $request->user())->getPlaylistName($data["playlist_id"]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
         }
 
         // Create a playlist
@@ -131,14 +133,14 @@ class ShareController extends \App\Http\Controllers\Controller
                 "message" => "Copy started successfully.",
                 "copy" => $copy
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ApiResponse::error([
                 "error" => $e
-            ], 500);
+            ]);
         }
     }
 
-    public function getCopy(Request $request, string $id): JsonResponse
+    public function getCopy(string $id): JsonResponse
     {
         try {
             $copy = Copy::where("id", $id)
@@ -156,7 +158,7 @@ class ShareController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "copy" => $copy
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -173,7 +175,7 @@ class ShareController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "copies" => $copies
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

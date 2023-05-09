@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\v2\User;
 
 use App\Helpers\ApiResponse;
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\PersonalAccessToken;
 
-class LoginController extends \App\Http\Controllers\Controller
+class LoginController extends Controller
 {
     /**
      * Authenticate a user
@@ -40,7 +42,7 @@ class LoginController extends \App\Http\Controllers\Controller
                     "api_token" => $token->plainTextToken
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -50,7 +52,7 @@ class LoginController extends \App\Http\Controllers\Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function verify(Request $request)
+    public function verify(Request $request): JsonResponse
     {
         $token = $request->header("Authorization");
 
@@ -74,15 +76,15 @@ class LoginController extends \App\Http\Controllers\Controller
                     "token" => $token
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
 
     public function doAppleAuth(Request $request): JsonResponse
     {
-        $code = $request->code;
-        $name = $request->name;
+        $code = $request->input("code");
+        $name = $request->input("code");
 
         $data = [
             "client_id" => env("APPLE_CLIENT_ID"),
@@ -101,7 +103,7 @@ class LoginController extends \App\Http\Controllers\Controller
             else if ($payload->email) return $this->appleLogIn($payload);
 
             return ApiResponse::error("Unable to authenticate with Apple.");
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("Unable to authenticate with Apple.");
         }
     }
@@ -120,12 +122,12 @@ class LoginController extends \App\Http\Controllers\Controller
                     "api_token" => $token->plainTextToken
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
 
-    private function appleSignUp($payload, $name)
+    private function appleSignUp($payload, $name): JsonResponse
     {
         try {
             if (User::where("email", $payload->email)->first()) return $this->appleLogIn($payload);
@@ -148,7 +150,7 @@ class LoginController extends \App\Http\Controllers\Controller
                     "api_token" => $token->plainTextToken
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
