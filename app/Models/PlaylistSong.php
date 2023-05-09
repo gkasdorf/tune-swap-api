@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $playlist_id
+ * @property int $song_id
+ * @property Playlist $playlist
+ * @property Song $song
+ */
 class PlaylistSong extends Model
 {
     use HasFactory;

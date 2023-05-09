@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $share_id
+ * @property MusicService $service
+ * @property SwapStatus $status
+ * @property User $user
+ * @property Share $share
+ * @property string $service_url
+ */
 class Copy extends Model
 {
     use HasFactory;

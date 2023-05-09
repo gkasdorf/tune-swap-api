@@ -9,6 +9,29 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property int id
+ * @property string $email
+ * @property string $password
+ * @property string $remember_token
+ * @property string $name
+ * @property string $spotify_token
+ * @property int $spotify_expiration
+ * @property string $spotify_refresh_token
+ * @property string $spotify_email
+ * @property string $spotify_user_id
+ * @property string $apple_music_token
+ * @property string apple_music_storefront
+ * @property string $tidal_token
+ * @property string $tidal_refresh_token
+ * @property int $tidal_expiration
+ * @property string $tidal_email
+ * @property string $tidal_username
+ * @property string $ios_device_tokens
+ * @property bool $ios_notifications_enabled
+ * @property bool $is_running
+ * @property string $android_device_tokens
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
