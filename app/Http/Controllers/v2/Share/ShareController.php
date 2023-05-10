@@ -22,7 +22,6 @@ class ShareController extends Controller
         // Grab it
         $share = Share::where("access_id", $id)
             ->with("playlist")
-            ->with("playlist.playlistSongs")
             ->with(["playlist.user" => function ($query) {
                 $query->select("id", "name");
             }])
@@ -35,6 +34,7 @@ class ShareController extends Controller
 
         return ApiResponse::success([
             "share" => $share,
+            "songCount" => $share->playlist->playlistSongs()->count(),
             "isOwner" => $share->user_id == $request->user()?->id // Send this over so we know if we should have owner UI
         ]);
     }
