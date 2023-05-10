@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Swap;
 
-use App\Http\MusicService;
 use App\Models\Playlist;
 use App\Models\PlaylistSong;
 use App\Models\Song;
 use App\Models\Swap;
 use App\Models\User;
+use App\Types\MusicService;
 
 class SwapHelper
 {

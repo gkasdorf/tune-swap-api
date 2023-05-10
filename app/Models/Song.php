@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Http\MusicService;
+use App\Types\MusicService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

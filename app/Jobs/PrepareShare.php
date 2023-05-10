@@ -3,11 +3,11 @@
 namespace App\Jobs;
 
 use App\Helpers\Helpers;
-use App\Http\MusicService;
 use App\Jobs\Swap\SwapHelper;
 use App\Models\Playlist;
 use App\Models\Share;
 use App\Models\User;
+use App\Types\MusicService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
