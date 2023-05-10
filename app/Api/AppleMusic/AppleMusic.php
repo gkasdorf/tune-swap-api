@@ -6,9 +6,10 @@
 
 namespace App\Api\AppleMusic;
 
-use App\Models\ParsedPlaylist;
-use App\Models\ParsedSong;
 use App\Models\User;
+use App\Types\ParsedPlaylist;
+use App\Types\ParsedSong;
+use Exception;
 use Illuminate\Support\Facades\Http;
 
 class AppleMusic
@@ -86,7 +87,7 @@ class AppleMusic
                     $track->attributes->albumName,
                     $track->attributes->artwork->url ?? null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Error finding song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -98,7 +99,7 @@ class AppleMusic
 
     /**
      * Get user's playlists
-     * @return object
+     * @return array
      */
     public function getUserPlaylists(): array
     {
@@ -140,7 +141,7 @@ class AppleMusic
                     $playlist->attributes->description->standard ?? "",
                     null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Something went wrong with a song. Moving on.");
                 error_log(json_encode($e));
             }
@@ -198,7 +199,7 @@ class AppleMusic
                     $song->attributes->albumName,
                     $song->attributes->artwork->url ?? null
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 error_log("Something went wrong finding a song.");
                 error_log(json_encode($e));
             }
@@ -251,7 +252,7 @@ class AppleMusic
                 "album" => $song->attributes->albumName,
                 "artwork" => $song->attributes->artwork->url
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

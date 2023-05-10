@@ -5,11 +5,13 @@ namespace App\Http\Controllers\v2\Apps\Spotify;
 use App\Api\Spotify\Spotify;
 use App\Api\Spotify\SpotifyAuthentication;
 use App\Helpers\ApiResponse;
+use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 
-class SpotifyController extends \App\Http\Controllers\Controller
+class SpotifyController extends Controller
 {
     public function getAuthUrl(Request $request): JsonResponse
     {
@@ -19,7 +21,7 @@ class SpotifyController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "url" => $url
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -28,7 +30,7 @@ class SpotifyController extends \App\Http\Controllers\Controller
     {
         try {
             $user = $request->user();
-            $code = $request->code;
+            $code = $request->input("code");
             $redirectUrl = $request->redirect_uri ?? URL::to("/api/spotify/auth");
 
             $resp = SpotifyAuthentication::auth($code, $redirectUrl);
@@ -52,7 +54,7 @@ class SpotifyController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "email" => $profile["email"]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -65,7 +67,7 @@ class SpotifyController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "playlists" => $spotify->getUserPlaylists()
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

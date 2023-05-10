@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v2\User;
 
 use App\Helpers\ApiResponse;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -39,7 +40,7 @@ class SignupController extends \App\Http\Controllers\Controller
                     "api_token" => $token->plainTextToken
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

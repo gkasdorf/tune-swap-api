@@ -6,8 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
+
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $name
+ * @property string $genre
+ * @property int $swaps
+ * @property string $service
+ * @property string $service_id
+ * @property User $user
+ * @property
+ */
 class Playlist extends Model
 {
     use HasFactory;
@@ -20,7 +31,7 @@ class Playlist extends Model
         "service_id"
     ];
 
-    public function user(): BelongsTo
+    public function user(): BelongsTo|User
     {
         return $this->belongsTo(User::class);
     }
@@ -28,10 +39,5 @@ class Playlist extends Model
     public function playlistSongs(): HasMany
     {
         return $this->hasMany(PlaylistSong::class);
-    }
-
-    public function share(): HasOne
-    {
-        return $this->hasOne(Share::class);
     }
 }

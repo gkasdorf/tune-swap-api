@@ -4,10 +4,12 @@ namespace App\Http\Controllers\v2\Apps\Tidal;
 
 use App\Api\Tidal\Tidal;
 use App\Helpers\ApiResponse;
+use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class TidalController extends \App\Http\Controllers\Controller
+class TidalController extends Controller
 {
     public function getAuthUrl(Request $request): JsonResponse
     {
@@ -17,7 +19,7 @@ class TidalController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "url" => Tidal::createAuthUrl($android == "true")
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -26,9 +28,9 @@ class TidalController extends \App\Http\Controllers\Controller
     {
         try {
             $user = $request->user();
-            $code = $request->code;
-            $codeVerifier = $request->codeVerifier;
-            $android = $request->android == "true";
+            $code = $request->input("code");
+            $codeVerifier = $request->input("codeVerifier");
+            $android = $request->input("android") == "true";
 
             $response = Tidal::auth($code, $codeVerifier, $android);
 
@@ -49,7 +51,7 @@ class TidalController extends \App\Http\Controllers\Controller
                 "email" => $user->tidal_email,
                 "username" => $user->tidal_username
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e->getMessage());
             error_log($e->getLine());
             error_log($e->getCode());
@@ -66,7 +68,7 @@ class TidalController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "playlists" => $tidal->getUserPlaylists()
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

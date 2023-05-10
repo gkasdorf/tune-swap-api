@@ -3,38 +3,39 @@
 namespace App\Http\Controllers\v2\User;
 
 use App\Helpers\ApiResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class NotificationsController extends \App\Http\Controllers\Controller
 {
-    public function enableIos(Request $request)
+    public function enableIos(Request $request): JsonResponse
     {
         if (!isset($request->token))
             return ApiResponse::fail("No token provided.");
 
         $request->user()->addIosDeviceToken($request->token);
 
-        return ApiResponse::success();
+        return ApiResponse::success("Notifications enabled.");
     }
 
-    public function disableIos(Request $request)
+    public function disableIos(Request $request): JsonResponse
     {
         if (!isset($request->token))
             return ApiResponse::fail("No token provided.");
 
         $request->user()->removeIosDeviceToken($request->token);
 
-        return ApiResponse::success();
+        return ApiResponse::success("Notifications disabled.");
     }
 
-    public function iosEnabled(Request $request)
+    public function iosEnabled(Request $request): JsonResponse
     {
         return ApiResponse::success([
             "enabled" => $request->user()->iosNotificationsEnabled()
         ]);
     }
 
-    public function enableAndroid(Request $request)
+    public function enableAndroid(Request $request): JsonResponse
     {
         if (!isset($request->token))
             return ApiResponse::fail("No token provided.");
@@ -44,7 +45,7 @@ class NotificationsController extends \App\Http\Controllers\Controller
         return ApiResponse::success();
     }
 
-    public function disableAndroid(Request $request)
+    public function disableAndroid(Request $request): JsonResponse
     {
         if (!isset($request->token))
             return ApiResponse::fail("No token provided.");
@@ -54,7 +55,7 @@ class NotificationsController extends \App\Http\Controllers\Controller
         return ApiResponse::success();
     }
 
-    public function androidEnabled(Request $request)
+    public function androidEnabled(Request $request): JsonResponse
     {
         return ApiResponse::success([
             "enabled" => $request->user()->androidNotificationsEnabled()
