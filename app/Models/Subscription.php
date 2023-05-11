@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
+/**
+ * @property int $user_id
+ * @property string $start_date
+ * @property string $end_date
+ * @property SubscriptionType $subscription_type
+ * @property User $user
+ */
 class Subscription extends Model
 {
     use HasFactory;

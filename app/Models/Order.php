@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property PaymentType $payment_type
+ * @property float $payment_amount
+ * @property SubscriptionType $subscription_type
+ * @property string $account_no
+ */
 class Order extends Model
 {
     use HasFactory;

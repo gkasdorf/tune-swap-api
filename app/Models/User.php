@@ -77,6 +77,13 @@ class User extends Authenticatable
         return $this->name;
     }
 
+    public function getSubscription(): Subscription|HasMany|null
+    {
+        if ($this->subscriptions()->count() < 1) return null;
+
+        return $this->subscriptions()->latest();
+    }
+
     public function hasSpotify(): bool
     {
         return isset($this->spotify_token);
@@ -217,5 +224,10 @@ class User extends Authenticatable
     public function copies(): HasMany
     {
         return $this->hasMany(Copy::class, "user_id", "id");
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, "user_id", "id");
     }
 }
