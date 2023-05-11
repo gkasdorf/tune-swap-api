@@ -51,6 +51,8 @@ Route::middleware("auth:sanctum")->group(function () {
     // Subscription routes
     Route::get("/v2/user/subscription", [SubscriptionController::class, "getSubscription"]);
 
+    Route::post("/v2/user/subscription/verify/apple", [SubscriptionController::class, "verifySubscriptionIos"]);
+
     // Notification routes
     Route::get("/v2/user/notifications/ios/enable", [NotificationsController::class, "enableIos"]);
     Route::get("/v2/user/notifications/ios/disable", [NotificationsController::class, "disableIos"]);
