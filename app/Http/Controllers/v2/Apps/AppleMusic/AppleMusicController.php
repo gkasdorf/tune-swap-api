@@ -61,7 +61,7 @@ class AppleMusicController extends Controller
 
             error_log("Sup");
 
-            return redirect("tuneswap://home/share/AppleMusic?success=true");
+            return redirect("tuneswap://home/settings/AppleMusic?success=true");
         } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
