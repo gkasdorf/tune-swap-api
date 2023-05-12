@@ -39,7 +39,8 @@ class LoginController extends Controller
                 "data" => [
                     "name" => $user->name,
                     "email" => $user->email,
-                    "api_token" => $token->plainTextToken
+                    "api_token" => $token->plainTextToken,
+                    "subscribed" => $user->isSubscribed()
                 ]
             ]);
         } catch (Exception) {
@@ -69,11 +70,14 @@ class LoginController extends Controller
                 return ApiResponse::fail("Invalid token.", 401);
             }
 
+            error_log($user->isSubscribed());
+
             return ApiResponse::success([
                 "user" => [
                     "email" => $user->email,
                     "name" => $user->name,
-                    "token" => $token
+                    "token" => $token,
+                    "subscribed" => $user->isSubscribed()
                 ]
             ]);
         } catch (Exception) {

@@ -11,6 +11,7 @@ use App\Http\Controllers\v2\User\HasController;
 use App\Http\Controllers\v2\User\LoginController;
 use App\Http\Controllers\v2\User\NotificationsController;
 use App\Http\Controllers\v2\User\SignupController;
+use App\Http\Controllers\v2\User\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +47,11 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get("/v2/user/has/tidal", [HasController::class, "hasTidal"]);
 
     Route::get("/v2/user/running", [HasController::class, "isRunning"]);
+
+    // Subscription routes
+    Route::get("/v2/user/subscription", [SubscriptionController::class, "getSubscription"]);
+
+    Route::post("/v2/user/subscription/verify/apple", [SubscriptionController::class, "verifySubscriptionIos"]);
 
     // Notification routes
     Route::get("/v2/user/notifications/ios/enable", [NotificationsController::class, "enableIos"]);

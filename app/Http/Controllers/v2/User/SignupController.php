@@ -37,7 +37,8 @@ class SignupController extends \App\Http\Controllers\Controller
                 "data" => [
                     "name" => $user->name,
                     "email" => $user->email,
-                    "api_token" => $token->plainTextToken
+                    "api_token" => $token->plainTextToken,
+                    "subscribed" => false
                 ]
             ]);
         } catch (Exception) {

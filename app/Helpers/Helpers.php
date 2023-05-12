@@ -5,8 +5,8 @@ namespace App\Helpers;
 use App\Api\AppleMusic\AppleMusic;
 use App\Api\Spotify\Spotify;
 use App\Api\Tidal\Tidal;
-use App\Http\MusicService;
 use App\Models\User;
+use App\Types\MusicService;
 use Exception;
 
 class Helpers

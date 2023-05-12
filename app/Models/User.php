@@ -77,6 +77,34 @@ class User extends Authenticatable
         return $this->name;
     }
 
+    public function getSubscription(): Subscription|HasMany|null
+    {
+        if ($this->subscriptions()->count() < 1) return null;
+
+        $subscription = $this->subscriptions()->latest()->first();
+
+        if (strtotime($subscription->end_date) < time()) {
+            return null;
+        }
+
+        return $subscription;
+    }
+
+    public function isSubscribed(): bool
+    {
+        if ($this->subscriptions()->count() > 0) {
+            $sub = $this->getSubscription();
+
+            if (is_null($sub)) return false;
+
+            if (strtotime($sub->end_date) >= time()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function hasSpotify(): bool
     {
         return isset($this->spotify_token);
@@ -217,5 +245,10 @@ class User extends Authenticatable
     public function copies(): HasMany
     {
         return $this->hasMany(Copy::class, "user_id", "id");
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, "user_id", "id");
     }
 }

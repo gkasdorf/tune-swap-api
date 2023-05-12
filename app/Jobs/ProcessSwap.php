@@ -3,13 +3,13 @@
 namespace App\Jobs;
 
 use App\Helpers\Helpers;
-use App\Http\MusicService;
 use App\Jobs\Swap\SwapHelper;
 use App\Models\Playlist;
 use App\Models\SongNotFound;
 use App\Models\Swap;
 use App\Models\User;
 use App\Notifications\SwapComplete;
+use App\Types\MusicService;
 use App\Types\SwapStatus;
 use Exception;
 use Illuminate\Bus\Queueable;
