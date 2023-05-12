@@ -85,6 +85,10 @@ class DoSync implements ShouldQueue
         ]);
         $this->toPlaylist->save();
 
+        $this->sync->from_playlist_id = $this->fromPlaylist->id;
+        $this->sync->to_playlist_id = $this->toPlaylist->id;
+        $this->sync->save();
+
         error_log("Second playlist created...");
 
         SwapHelper::createPlaylist($this->fromPlaylist, $this->fromApi);

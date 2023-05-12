@@ -6,6 +6,7 @@ use App\Http\Controllers\v2\Apps\Spotify\SpotifyController;
 use App\Http\Controllers\v2\Apps\Tidal\TidalController;
 use App\Http\Controllers\v2\Share\ShareController;
 use App\Http\Controllers\v2\Swap\SwapController;
+use App\Http\Controllers\v2\Sync\SyncController;
 use App\Http\Controllers\v2\User\DeleteController;
 use App\Http\Controllers\v2\User\HasController;
 use App\Http\Controllers\v2\User\LoginController;
@@ -85,7 +86,10 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post("/v2/share/{id}/copy", [ShareController::class, "startCopy"]);
     Route::get("/v2/share/copy/{id}", [ShareController::class, "getCopy"]);
 
-    Route::post("/v2/sync/create", [\App\Http\Controllers\v2\Sync\SyncController::class, "create"]);
+    // Sync Routes
+    Route::get("/v2/sync", [SyncController::class, "getAll"]);
+    Route::get("/v2/sync/{id}", [SyncController::class, "get"]);
+    Route::post("/v2/sync/create", [SyncController::class, "create"]);
 
     // Spotify routes
     Route::get("/v2/spotify/authUrl", [SpotifyController::class, "getAuthUrl"]);
