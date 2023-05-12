@@ -160,7 +160,7 @@ class Spotify
         return $response->name;
     }
 
-    public function getPlaylistTotal(string $id): string
+    public function getPlaylistTotal(string $id): int
     {
         $url = $this->baseUrl . "/playlists/" . $id;
 

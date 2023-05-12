@@ -284,7 +284,7 @@ class Tidal
         return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->title;
     }
 
-    public function getPlaylistTotal(string $id): string
+    public function getPlaylistTotal(string $id): int
     {
         $data = self::addCountryCode([]);
 

@@ -162,6 +162,13 @@ class AppleMusic
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
     }
 
+    public function getPlaylistTotal(string $id): int
+    {
+        $url = "$this->baseUrlMe/library/playlists/$id/tracks";
+
+        return json_decode(Http::withHeaders($this->header)->get($url)->body())->meta->total;
+    }
+
     public function getPlaylistUrl($id): string
     {
         if ($id == "library") {
