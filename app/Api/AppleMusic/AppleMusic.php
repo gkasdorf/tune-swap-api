@@ -309,4 +309,24 @@ class AppleMusic
             "url" => $this->getPlaylistUrl($createRes->data[0]->id)
         ];
     }
+
+    public function addTracksToPlaylist(string $id, array $tracks): void
+    {
+        $data = [
+            "data" => []
+        ];
+
+        foreach ($tracks as $track) {
+            $data["data"][] = [
+                "id" => $track,
+                "type" => "songs"
+            ];
+        }
+
+        $jsonData = json_encode($data);
+
+        $url = "$this->baseUrlMe/library/playlists/$id/tracks";
+
+        Http::withHeaders($this->header)->withBody($jsonData)->post($url);
+    }
 }

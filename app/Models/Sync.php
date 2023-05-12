@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property DateTime $last_synced
  * @property DateTime $last_checked
  * @property bool $syncing
+ * @property bool $running
  * @property int $from_total
  * @property int $to_total
  * @property User $user
@@ -40,7 +41,8 @@ class Sync extends Model
     protected $casts = [
         "last_synced" => "datetime",
         "last_checked" => "datetime",
-        "syncing" => "bool"
+        "syncing" => "bool",
+        "running" => "bool"
     ];
 
     public function user(): BelongsTo
@@ -67,6 +69,12 @@ class Sync extends Model
     public function setSynced(): void
     {
         $this->last_synced = new DateTime();
+        $this->save();
+    }
+
+    public function setRunning(bool $running): void
+    {
+        $this->running = $running;
         $this->save();
     }
 }

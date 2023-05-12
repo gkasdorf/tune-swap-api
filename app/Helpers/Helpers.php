@@ -48,4 +48,26 @@ class Helpers
             }
         }
     }
+
+    public static function serviceToColumnName(MusicService|string $service): string
+    {
+        switch ($service) {
+            case MusicService::SPOTIFY:
+            {
+                return "spotify_id";
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                return "apple_music_id";
+            }
+            case MusicService::TIDAL:
+            {
+                return "tidal_id";
+            }
+            default:
+            {
+                throw new Exception("Invalid service");
+            }
+        }
+    }
 }

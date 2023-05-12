@@ -434,35 +434,34 @@ class Tidal
         // Get the playlist ID
         $playlistId = $createResp->data->uuid;
 
-        // Cut up that shit...chunky chunky
-        $chunks = array_chunk($tracks, 50);
-
-        // Set the add items url
-        $url = "$this->baseUrlv1/playlists/$playlistId/items";
-
-        $this->header["If-None-Match"] = "*";
-
-        // For each chunk...
-        foreach ($chunks as $chunk) {
-            // Create a string from the chunk
-            $chunkStr = implode(",", $chunk);
-
-            // Create the data array
-            $data = [
-                "trackIds" => $chunkStr,
-                "onArtifactNotFound" => "FAIL",
-                "onDupes" => "FAIL"
-            ];
-
-            // Post that shit
-            Http::withHeaders($this->header)->asForm()->post($url, $data);
-        }
+        $this->addTracksToPlaylist($playlistId, $tracks);
 
         // Return the data about the playlist
         return (object)[
             "id" => $createResp->data->uuid,
             "url" => $createResp->data->url
         ];
+    }
+
+    public function addTracksToPlaylist(string $id, array $tracks): void
+    {
+        $chunks = array_chunk($tracks, 50);
+
+        $url = "$this->baseUrlv1/playlists/$id/items";
+
+        $this->header["If-None-Match"] = "*";
+
+        foreach ($chunks as $chunk) {
+            $chunkStr = implode(",", $chunk);
+
+            $data = [
+                "trackIds" => $chunkStr,
+                "onArtifactNotFound" => "FAIL",
+                "onDupes" => "FAIL"
+            ];
+
+            Http::withHeaders($this->header)->asForm()->post($url, $data);
+        }
     }
 
     /**

@@ -284,35 +284,32 @@ class Spotify
         // Send the request
         $createResponse = json_decode(Http::withHeaders($this->header)->withBody($jsonData)->post($url));
 
-        // Create chunks of 100 elements. Spotify API only allows adding 100 songs per request
-        $chunks = array_chunk($tracks, 100);
-
-        // Create the url for posting the songs to
-        $url = "$this->baseUrl/playlists/$createResponse->id/tracks";
-
-        // For each chunk...
-        foreach ($chunks as $chunk) {
-            // For each track in the chunk...
-            foreach ($chunk as $key => $track) {
-                // Prepend the necessary data for spotify
-                $chunk[$key] = "spotify:track:$track";
-            }
-
-            // Create our data to send
-            $data = [
-                "uris" => $chunk
-            ];
-
-            // encode baby encode
-            $jsonData = json_encode($data);
-
-            // make the request
-            Http::withHeaders($this->header)->withBody($jsonData)->post($url);
-        }
+        $this->addTracksToPlaylist($createResponse->id, $tracks);
 
         return (object)[
             "id" => $createResponse->id,
             "url" => $createResponse->external_urls->spotify ?? null
         ];
+    }
+
+    public function addTracksToPlaylist(string $id, array $tracks): void
+    {
+        $chunks = array_chunk($tracks, 100);
+
+        $url = "$this->baseUrl/playlists/$id/tracks";
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $key => $track) {
+                $chunk[$key] = "spotify:track:$track";
+            }
+
+            $data = [
+                "uris" => $chunk
+            ];
+
+            $jsonData = json_encode($data);
+
+            Http::withHeaders($this->header)->withBody($jsonData)->post($url);
+        }
     }
 }
