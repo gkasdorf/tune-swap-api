@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $payment_amount
  * @property SubscriptionType $subscription_type
  * @property string $account_no
+ * @property string $transaction_id
+ * @property string $order_data
  */
 class Order extends Model
 {
@@ -25,7 +27,9 @@ class Order extends Model
         "payment_type",
         "payment_amount",
         "subscription_type",
-        "account_no"
+        "account_no",
+        "order_data",
+        "transaction_id"
     ];
 
     protected $casts = [
@@ -36,7 +40,9 @@ class Order extends Model
     protected $visible = [
         "payment_type",
         "payment_amount",
-        "subscription_type"
+        "subscription_type",
+        "transaction_id",
+        "order_data"
     ];
 
     public function user(): BelongsTo

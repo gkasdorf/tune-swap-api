@@ -81,7 +81,28 @@ class User extends Authenticatable
     {
         if ($this->subscriptions()->count() < 1) return null;
 
-        return $this->subscriptions()->latest();
+        $subscription = $this->subscriptions()->latest()->first();
+
+        if (strtotime($subscription->end_date) < time()) {
+            return null;
+        }
+
+        return $subscription;
+    }
+
+    public function isSubscribed(): bool
+    {
+        if ($this->subscriptions()->count() > 0) {
+            $sub = $this->getSubscription();
+
+            if (is_null($sub)) return false;
+
+            if (strtotime($sub->end_date) >= time()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function hasSpotify(): bool

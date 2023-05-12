@@ -27,7 +27,9 @@ class Subscription extends Model
     ];
 
     protected $casts = [
-        "subscription_type" => SubscriptionType::class
+        "subscription_type" => SubscriptionType::class,
+        "start_date" => "datetime",
+        "end_date" => "datetime"
     ];
 
     protected $visible = [
