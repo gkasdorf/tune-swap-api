@@ -85,6 +85,7 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post("/v2/share/{id}/copy", [ShareController::class, "startCopy"]);
     Route::get("/v2/share/copy/{id}", [ShareController::class, "getCopy"]);
 
+    Route::post("/v2/sync/create", [\App\Http\Controllers\v2\Sync\SyncController::class, "create"]);
 
     // Spotify routes
     Route::get("/v2/spotify/authUrl", [SpotifyController::class, "getAuthUrl"]);

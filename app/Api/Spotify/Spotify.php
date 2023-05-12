@@ -294,6 +294,8 @@ class Spotify
 
     public function addTracksToPlaylist(string $id, array $tracks): void
     {
+        $this->checkToken();
+
         $chunks = array_chunk($tracks, 100);
 
         $url = "$this->baseUrl/playlists/$id/tracks";
@@ -310,6 +312,8 @@ class Spotify
             $jsonData = json_encode($data);
 
             Http::withHeaders($this->header)->withBody($jsonData)->post($url);
+
+            usleep(500);
         }
     }
 }

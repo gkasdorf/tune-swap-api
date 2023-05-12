@@ -21,11 +21,11 @@ class DoSync implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private User $user;
-    private Playlist $fromPlaylist;
-    private Playlist $toPlaylist;
+    private ?Playlist $fromPlaylist;
+    private ?Playlist $toPlaylist;
     private Sync $sync;
 
-    private array $options;
+    private ?array $options;
 
     private mixed $fromApi;
     private mixed $toApi;
@@ -39,6 +39,7 @@ class DoSync implements ShouldQueue
         $this->fromPlaylist = $sync->from_playlist;
         $this->toPlaylist = $sync->to_playlist;
         $this->sync = $sync;
+        $this->options = $options;
 
         $this->fromApi = Helpers::serviceToApi(MusicService::from($options ? $options["fromService"] : $this->fromPlaylist->service), $this->user);
         $this->toApi = Helpers::serviceToApi(MusicService::from($options ? $options["toService"] : $this->toPlaylist->service), $this->user);
@@ -51,16 +52,6 @@ class DoSync implements ShouldQueue
         if ($this->sync->from_playlist_id == null) {
             $this->createPlaylists();
         }
-        /**
-         * 1. Get the songs from the from playlist
-         * 2. Get the songs from the to playlist
-         *
-         * Check from against to
-         *  - If there isn't a track, we will add it.
-         *
-         * Check the to against the from
-         *  - If there isnt a track, we will add it
-         */
 
         $this->comparePlaylists();
         $this->updatePlaylists();
@@ -71,8 +62,10 @@ class DoSync implements ShouldQueue
 
     private function createPlaylists(): void
     {
+        error_log("Creating playlists...");
+
         $fromName = $this->fromApi->getPlaylistName($this->options["fromId"]);
-        $toName = $this->fromApi->getPlaylistName($this->options["toId"]);
+        $toName = $this->toApi->getPlaylistName($this->options["toId"]);
 
         $this->fromPlaylist = new Playlist([
             "name" => $fromName,
@@ -82,6 +75,8 @@ class DoSync implements ShouldQueue
         ]);
         $this->fromPlaylist->save();
 
+        error_log("First playlist created...");
+
         $this->toPlaylist = new Playlist([
             "name" => $toName,
             "user_id" => $this->user->id,
@@ -90,51 +85,65 @@ class DoSync implements ShouldQueue
         ]);
         $this->toPlaylist->save();
 
+        error_log("Second playlist created...");
+
         SwapHelper::createPlaylist($this->fromPlaylist, $this->fromApi);
         SwapHelper::createPlaylist($this->toPlaylist, $this->toApi);
     }
 
     private function comparePlaylists(): void
     {
+        error_log("Comparing...");
+
+        error_log("Getting current songs...");
         // Get the currently stored songs
         $fromCurrentSongs = $this->fromPlaylist->playlistSongs()->with("song")->get();
         $toCurrentSongs = $this->toPlaylist->playlistSongs()->with("song")->get();
 
+        error_log("Getting live songs...");
         // Get the songs that are in the playlist
         $fromLiveSongs = $this->fromApi->getPlaylist($this->fromPlaylist->service_id);
         $toLiveSongs = $this->toApi->getPlaylist($this->toPlaylist->service_id);
 
+        error_log("Setting column names...");
         //Get the column names
         $fromColumnName = Helpers::serviceToColumnName($this->fromPlaylist->service);
         $toColumnName = Helpers::serviceToColumnName($this->toPlaylist->service);
 
-        foreach ($fromLiveSongs as $liveSong) {
-            if ($toCurrentSongs->firstWhere("song.$fromColumnName", $liveSong->id))
+        error_log("LoOpInG");
+        foreach ($fromLiveSongs as $parsedSong) {
+            error_log("Seeing if we have it...");
+            if ($toCurrentSongs->firstWhere("song.$fromColumnName", $parsedSong->id))
                 continue;
 
-            $search = SwapHelper::findTrackId($liveSong, MusicService::from($this->toPlaylist->service), $this->toApi);
+            error_log("Nope!");
+            $song = $fromCurrentSongs->firstWhere("song.$fromColumnName", $parsedSong->id)->song;
+
+            $search = SwapHelper::findTrackId($song, MusicService::from($this->toPlaylist->service), $this->toApi);
 
             if (!$search)
                 continue;
 
             $this->addToTo[] = $search["trackId"];
-            $this->addSongToPlaylist($this->toPlaylist, $liveSong);
+            $this->addSongToPlaylist($this->toPlaylist, $song);
 
             if ($search["usedApi"])
                 usleep(500);
         }
 
-        foreach ($toLiveSongs as $liveSong) {
-            if ($fromCurrentSongs->firstWhere("song.$toColumnName", $liveSong->id))
+        foreach ($toLiveSongs as $parsedSong) {
+            if ($fromCurrentSongs->firstWhere("song.$toColumnName", $parsedSong->id))
                 continue;
 
-            $search = SwapHelper::findTrackId($liveSong, MusicService::from($this->fromPlaylist->service), $this->fromApi);
+            $song = $toCurrentSongs->firstWhere("song.$toColumnName", $parsedSong->id)->song;
+
+            $search = SwapHelper::findTrackId($song, MusicService::from($this->fromPlaylist->service), $this->fromApi);
 
             if (!$search)
                 continue;
 
             $this->addToFrom[] = $search["trackId"];
-            $this->addSongToPlaylist($this->fromPlaylist, $liveSong);
+            $this->addSongToPlaylist($this->fromPlaylist, $song);
 
             if ($search["usedApi"])
                 usleep(500);
@@ -153,10 +162,12 @@ class DoSync implements ShouldQueue
     private function updatePlaylists(): void
     {
         if (count($this->addToFrom) > 0) {
+            error_log("Updating playlist...");
             $this->fromApi->addTracksToPlaylist($this->fromPlaylist->service_id, $this->addToFrom);
         }
 
         if (count($this->addToTo) > 0) {
+            error_log("Updating playlist...");
             $this->toApi->addTracksToPlaylist($this->toPlaylist->service_id, $this->addToTo);
         }
     }

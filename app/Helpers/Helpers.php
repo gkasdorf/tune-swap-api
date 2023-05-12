@@ -51,6 +51,10 @@ class Helpers
 
     public static function serviceToColumnName(MusicService|string $service): string
     {
+        if (is_string($service)) {
+            $service = MusicService::from($service);
+        }
+
         switch ($service) {
             case MusicService::SPOTIFY:
             {
