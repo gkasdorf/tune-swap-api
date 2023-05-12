@@ -34,7 +34,7 @@ class Tidal
     {
         $this->user = $user;
 
-        if ($this->user->tidal_expiration <= time() - 600) {
+        if ($this->user->tidal_expiration <= time() + 600) {
             $this->user->tidal_token = self::refresh($user);
         }
 

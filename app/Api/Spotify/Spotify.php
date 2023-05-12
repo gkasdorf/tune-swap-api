@@ -25,7 +25,7 @@ class Spotify
     public function __construct(User $user)
     {
         // Check if the access token has expired
-        if ($user->spotify_expiration <= time() - 900) {
+        if ($user->spotify_expiration <= time() + 900) {
             $user->spotify_token = SpotifyAuthentication::refresh($user);
         }
         $this->baseUrl = "https://api.spotify.com/v1";
