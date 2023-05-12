@@ -160,6 +160,13 @@ class Spotify
         return $response->name;
     }
 
+    public function getPlaylistTotal(string $id): string
+    {
+        $url = $this->baseUrl . "/playlists/" . $id;
+
+        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->tracks->total;
+    }
+
     /**
      * Returns the playlist URL if available
      * @param $id

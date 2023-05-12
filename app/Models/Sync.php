@@ -13,9 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $from_playlist_id
  * @property int $to_playlist_id
  * @property DateTime $last_synced
- * @property DateTime $last_updated
  * @property DateTime $last_checked
  * @property bool $syncing
+ * @property int $from_total
+ * @property int $to_total
  * @property User $user
  * @property Playlist $from_playlist
  * @property Playlist $to_playlist
@@ -30,15 +31,15 @@ class Sync extends Model
         "to_playlist_id",
         "last_synced",
         "last_checked",
-        "last_updated",
         "syncing",
-        "custom_time"
+        "custom_time",
+        "from_total",
+        "to_total"
     ];
 
     protected $casts = [
         "last_synced" => "datetime",
         "last_checked" => "datetime",
-        "last_updated" => "datetime",
         "syncing" => "bool"
     ];
 
@@ -60,12 +61,6 @@ class Sync extends Model
     public function setChecked(): void
     {
         $this->last_checked = new DateTime();
-        $this->save();
-    }
-
-    public function setUpdated(DateTime $time): void
-    {
-        $this->last_updated = $time;
         $this->save();
     }
 

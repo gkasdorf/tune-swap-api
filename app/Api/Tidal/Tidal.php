@@ -284,13 +284,13 @@ class Tidal
         return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->title;
     }
 
-    public function getPlaylistLastUpdated(string $id): string
+    public function getPlaylistTotal(string $id): string
     {
         $data = self::addCountryCode([]);
 
         $url = "$this->baseUrlv1/playlists/$id?" . http_build_query($data);
 
-        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->lastUpdated;
+        return json_decode(Http::withHeaders($this->header)->acceptJson()->get($url)->body())->numberOfTracks;
     }
 
     public function getPlaylistUrl(string $id): string

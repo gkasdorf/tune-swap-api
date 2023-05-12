@@ -8,7 +8,6 @@ use App\Models\Playlist;
 use App\Models\Sync;
 use App\Types\MusicService;
 use Exception;
-use Faker\Core\DateTime;
 use Illuminate\Http\Request;
 
 class SyncController extends \App\Http\Controllers\Controller
@@ -65,7 +64,6 @@ class SyncController extends \App\Http\Controllers\Controller
             "user_id" => $request->user()->id,
             "from_playlist_id" => $fromPlaylist->id,
             "to_playlist_id" => $toPlaylist->id,
-            "last_updated" => new DateTime(),
             "syncing" => true
         ]);
         $sync->save();
