@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use DateTime;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $from_total
  * @property int $to_total
  * @property User $user
- * @property Playlist $from_playlist
- * @property Playlist $to_playlist
+ * @property Playlist $fromPlaylist
+ * @property Playlist $toPlaylist
  */
 class Sync extends Model
 {
@@ -45,6 +47,11 @@ class Sync extends Model
         "running" => "bool"
     ];
 
+    public static function getActive(): Builder
+    {
+        return Sync::where("syncing", true);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -62,13 +69,13 @@ class Sync extends Model
 
     public function setChecked(): void
     {
-        $this->last_checked = new DateTime();
+        $this->last_checked = Carbon::now()->toDateTimeString();
         $this->save();
     }
 
     public function setSynced(): void
     {
-        $this->last_synced = new DateTime();
+        $this->last_synced = Carbon::now()->toDateTimeString();
         $this->save();
     }
 

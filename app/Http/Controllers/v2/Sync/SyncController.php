@@ -12,9 +12,19 @@ class SyncController extends \App\Http\Controllers\Controller
 {
     public function getAll(Request $request): JsonResponse
     {
-        return ApiResponse::success([
-            "syncs" => $request->user()->syncs()->orderBy("id", "DESC")->get()
-        ]);
+        try {
+            return ApiResponse::success([
+                "syncs" => $request
+                    ->user()
+                    ->syncs()
+                    ->with("fromPlaylist")
+                    ->with("toPlaylist")
+                    ->orderBy("id", "DESC")
+                    ->get()
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::fail($e->getMessage(), 500);
+        }
     }
 
     public function get(Request $request, $id): JsonResponse

@@ -27,8 +27,11 @@ class Helpers
     /**
      * @throws Exception
      */
-    public static function serviceToApi(MusicService $service, User $user): Spotify|AppleMusic|Tidal
+    public static function serviceToApi(MusicService|string $service, User $user): Spotify|AppleMusic|Tidal
     {
+        if (is_string($service))
+            $service = MusicService::from($service);
+
         switch ($service) {
             case MusicService::SPOTIFY:
             {

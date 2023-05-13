@@ -8,6 +8,7 @@ use App\Models\Song;
 use App\Models\Swap;
 use App\Models\User;
 use App\Types\MusicService;
+use App\Types\ParsedSong;
 
 class SwapHelper
 {
@@ -18,6 +19,37 @@ class SwapHelper
     public function __constructor(mixed $api, mixed $user = null, mixed $swap = null)
     {
 
+    }
+
+    public static function createSong(ParsedSong $parsedSong, MusicService|string $service): Song
+    {
+        $song = new Song([
+            "name" => $parsedSong->name,
+            "artist" => $parsedSong->artist,
+            "album" => $parsedSong->album
+        ]);
+
+        switch (MusicService::from($service)) {
+            case MusicService::SPOTIFY:
+            {
+                $song->spotify_id = $song->id;
+                break;
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                $song->apple_music_id = $song->id;
+                break;
+            }
+            case MusicService::TIDAL:
+            {
+                $song->tidal_id = $song->id;
+                break;
+            }
+        }
+
+        $song->save();
+
+        return $song;
     }
 
     public static function createPlaylist(Playlist $playlist, mixed $api): array
