@@ -227,6 +227,11 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function getActiveSyncCount(): int
+    {
+        return $this->syncs()->where("syncing", true)->count();
+    }
+
     public function swaps(): HasMany
     {
         return $this->hasMany(Swap::class);

@@ -49,6 +49,8 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::get("/v2/user/running", [HasController::class, "isRunning"]);
 
+    Route::get("/v2/user/syncs/active", [HasController::class, "getActiveSyncCount"]);
+
     // Subscription routes
     Route::get("/v2/user/subscription", [SubscriptionController::class, "getSubscription"]);
 
@@ -88,8 +90,9 @@ Route::middleware("auth:sanctum")->group(function () {
 
     // Sync Routes
     Route::get("/v2/sync", [SyncController::class, "getAll"]);
-    Route::get("/v2/sync/{id}", [SyncController::class, "get"]);
     Route::post("/v2/sync/create", [SyncController::class, "create"]);
+    Route::get("/v2/sync/{id}", [SyncController::class, "get"]);
+    Route::get("/v2/sync/{id}/syncing", [SyncController::class, "setSyncing"]);
 
     // Spotify routes
     Route::get("/v2/spotify/authUrl", [SpotifyController::class, "getAuthUrl"]);

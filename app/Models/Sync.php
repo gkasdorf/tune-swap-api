@@ -84,4 +84,10 @@ class Sync extends Model
         $this->running = $running;
         $this->save();
     }
+
+    public function setSyncing(): void
+    {
+        $this->syncing = !$this->syncing;
+        $this->save();
+    }
 }

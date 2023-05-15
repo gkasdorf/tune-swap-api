@@ -74,4 +74,25 @@ class SyncController extends \App\Http\Controllers\Controller
             "sync" => $sync
         ]);
     }
+
+    public function setSyncing(Request $request, $id): JsonResponse
+    {
+        $sync = $request->user()
+            ->syncs()
+            ->where("id", $id)
+            ->with("fromPlaylist")
+            ->with("toPlaylist")
+            ->first();
+
+        if (!$sync) {
+            return ApiResponse::fail("Sync not found.", 404);
+        }
+
+        $sync->setSyncing();
+
+        return ApiResponse::success([
+            "message" => "Sync status changed successfully.",
+            "sync" => $sync
+        ]);
+    }
 }
