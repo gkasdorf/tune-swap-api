@@ -92,9 +92,13 @@ class Sync extends Model
         $this->save();
     }
 
-    public function getNextCheck(): Carbon
+    public function getNextCheck(): Carbon|string
     {
         $subscription = $this->user->getSubscription();
+
+        if (!$this->last_checked) {
+            return Carbon::now();
+        }
 
         if ($subscription?->subscription_type == SubscriptionType::TURBO) {
             return Carbon::createFromTimeString($this->last_checked)->addMinutes(5);
