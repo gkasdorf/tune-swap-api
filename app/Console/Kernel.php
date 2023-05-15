@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\CheckSyncs;
 use Exolnet\Heartbeat\HeartbeatFacade;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -14,6 +15,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function () {
+            if (env("APP_ENV") === "local") {
+                error_log("Skipping heartbeat check because we're in local environment.");
+                return;
+            }
+
             $cmd = "php " . env("ARTISAN_PATH") . " queue:monitor database:default --max=100";
             $statusCheck = shell_exec($cmd);
 
@@ -24,6 +30,8 @@ class Kernel extends ConsoleKernel
                 error_log("Nope!");
             }
         })->everyThreeMinutes();
+
+        $schedule->job(new CheckSyncs)->everyMinute();
     }
 
     /**
