@@ -37,7 +37,7 @@ class CheckSyncs implements ShouldQueue
          */
 
         $turboSyncs = Sync::getActive()
-            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(10)->toDateTimeString())
+            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(5)->toDateTimeString())
             ->whereHas("user.subscriptions", function ($q) {
                 $q->where("subscription_type", SubscriptionType::TURBO)
                     ->where("end_date", ">=", Carbon::now()->toDateTimeString());
@@ -46,7 +46,7 @@ class CheckSyncs implements ShouldQueue
         error_log(json_encode($turboSyncs));
 
         $otherSyncs = Sync::getActive()
-            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(120)->toDateTimeString())
+            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(60)->toDateTimeString())
             ->whereDoesntHave("user.subscriptions", function ($q) {
                 $q->where("subscription_type", SubscriptionType::TURBO)
                     ->where("end_date", ">=", Carbon::now()->toDateTimeString());
