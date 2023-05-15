@@ -29,7 +29,12 @@ class SyncController extends \App\Http\Controllers\Controller
 
     public function get(Request $request, $id): JsonResponse
     {
-        $sync = $request->user()->syncs()->firstWhere("id", $id);
+        $sync = $request->user()
+            ->syncs()
+            ->where("id", $id)
+            ->with("fromPlaylist")
+            ->with("toPlaylist")
+            ->first();
 
         if (!$sync) {
             return ApiResponse::fail("Sync not found.", 404);
