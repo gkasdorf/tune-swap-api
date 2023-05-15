@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Types\SubscriptionType;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,5 +90,16 @@ class Sync extends Model
     {
         $this->syncing = !$this->syncing;
         $this->save();
+    }
+
+    public function getNextCheck(): Carbon
+    {
+        $subscription = $this->user->getSubscription();
+
+        if ($subscription?->subscription_type == SubscriptionType::TURBO) {
+            return Carbon::createFromTimeString($this->last_checked)->addMinutes(5);
+        }
+
+        return Carbon::createFromTimeString($this->last_checked)->addHours(1);
     }
 }

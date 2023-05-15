@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v2\Sync;
 use App\Helpers\ApiResponse;
 use App\Jobs\DoSync;
 use App\Models\Sync;
+use App\Types\SubscriptionType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,7 +42,10 @@ class SyncController extends \App\Http\Controllers\Controller
         }
 
         return ApiResponse::success([
-            "sync" => $sync
+            "message" => "Retrieved sync successfully.",
+            "sync" => $sync,
+            "subscription" => $request->user()->getSubscription(),
+            "nextCheck" => $sync->getNextCheck()
         ]);
     }
 
@@ -54,6 +58,10 @@ class SyncController extends \App\Http\Controllers\Controller
             "toService" => "required",
             "toId" => "required",
         ]);
+
+        if ($request->user()->getSubscription()->subscription_type !== SubscriptionType::TURBO && $request->user()->getTotalSyncs() >= 5) {
+            return ApiResponse::fail("You may only have a maximum of 5 active syncs.");
+        }
 
         // Create the sync
         $sync = new Sync([

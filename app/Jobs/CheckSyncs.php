@@ -37,7 +37,7 @@ class CheckSyncs implements ShouldQueue
          */
 
         $turboSyncs = Sync::getActive()
-            //->whereTime("last_checked", "<=", Carbon::now()->subMinutes(10)->toDateTimeString())
+            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(10)->toDateTimeString())
             ->whereHas("user.subscriptions", function ($q) {
                 $q->where("subscription_type", SubscriptionType::TURBO)
                     ->where("end_date", ">=", Carbon::now()->toDateTimeString());
