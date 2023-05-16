@@ -27,8 +27,11 @@ class Helpers
     /**
      * @throws Exception
      */
-    public static function serviceToApi(MusicService $service, User $user): Spotify|AppleMusic|Tidal
+    public static function serviceToApi(MusicService|string $service, User $user): Spotify|AppleMusic|Tidal
     {
+        if (is_string($service))
+            $service = MusicService::from($service);
+
         switch ($service) {
             case MusicService::SPOTIFY:
             {
@@ -41,6 +44,32 @@ class Helpers
             case MusicService::TIDAL:
             {
                 return new Tidal($user);
+            }
+            default:
+            {
+                throw new Exception("Invalid service");
+            }
+        }
+    }
+
+    public static function serviceToColumnName(MusicService|string $service): string
+    {
+        if (is_string($service)) {
+            $service = MusicService::from($service);
+        }
+
+        switch ($service) {
+            case MusicService::SPOTIFY:
+            {
+                return "spotify_id";
+            }
+            case MusicService::APPLE_MUSIC:
+            {
+                return "apple_music_id";
+            }
+            case MusicService::TIDAL:
+            {
+                return "tidal_id";
             }
             default:
             {

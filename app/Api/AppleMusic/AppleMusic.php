@@ -162,6 +162,13 @@ class AppleMusic
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
     }
 
+    public function getPlaylistTotal(string $id): int
+    {
+        $url = "$this->baseUrlMe/library/playlists/$id/tracks";
+
+        return json_decode(Http::withHeaders($this->header)->get($url)->body())->meta->total;
+    }
+
     public function getPlaylistUrl($id): string
     {
         if ($id == "library") {
@@ -301,5 +308,25 @@ class AppleMusic
             "id" => $createRes->data[0]->id,
             "url" => $this->getPlaylistUrl($createRes->data[0]->id)
         ];
+    }
+
+    public function addTracksToPlaylist(string $id, array $tracks): void
+    {
+        $data = [
+            "data" => []
+        ];
+
+        foreach ($tracks as $track) {
+            $data["data"][] = [
+                "id" => $track,
+                "type" => "songs"
+            ];
+        }
+
+        $jsonData = json_encode($data);
+
+        $url = "$this->baseUrlMe/library/playlists/$id/tracks";
+
+        Http::withHeaders($this->header)->withBody($jsonData)->post($url);
     }
 }

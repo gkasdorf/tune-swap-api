@@ -227,6 +227,11 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function getActiveSyncCount(): int
+    {
+        return $this->syncs()->where("syncing", true)->count();
+    }
+
     public function swaps(): HasMany
     {
         return $this->hasMany(Swap::class);
@@ -250,5 +255,10 @@ class User extends Authenticatable
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class, "user_id", "id");
+    }
+
+    public function syncs(): HasMany
+    {
+        return $this->hasMany(Sync::class);
     }
 }
