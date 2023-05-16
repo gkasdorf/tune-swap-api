@@ -70,8 +70,14 @@ class CheckSyncs implements ShouldQueue
         $fromApi = Helpers::serviceToApi($sync->fromPlaylist->service, $sync->user);
         $toApi = Helpers::serviceToApi($sync->toPlaylist->service, $sync->user);
 
-        $fromTotal = $fromApi->getPlaylistTotal($sync->fromPlaylist->service_id);
-        $toTotal = $toApi->getPlaylistTotal($sync->toPlaylist->service_id);
+        try {
+            $fromTotal = $fromApi->getPlaylistTotal($sync->fromPlaylist->service_id);
+            $toTotal = $toApi->getPlaylistTotal($sync->toPlaylist->service_id);
+        } catch (\Exception) {
+            //TODO - Handle this better
+            $sync->setSyncing();
+            return;
+        }
 
         $sync->setChecked();
 
