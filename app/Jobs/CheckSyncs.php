@@ -17,14 +17,6 @@ class CheckSyncs implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Create a new job instance.
-     */
-    public function __construct()
-    {
-
-    }
-
-    /**
      * Execute the job.
      */
     public function handle(): void
@@ -37,7 +29,7 @@ class CheckSyncs implements ShouldQueue
          */
 
         $turboSyncs = Sync::getActive()
-            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(5)->toDateTimeString())
+            ->where("last_checked", "<=", Carbon::now()->subMinutes(5))
             ->whereHas("user.subscriptions", function ($q) {
                 $q->where("subscription_type", SubscriptionType::TURBO)
                     ->where("end_date", ">=", Carbon::now()->toDateTimeString());
@@ -46,10 +38,10 @@ class CheckSyncs implements ShouldQueue
         error_log(json_encode($turboSyncs));
 
         $otherSyncs = Sync::getActive()
-            ->whereTime("last_checked", "<=", Carbon::now()->subMinutes(60)->toDateTimeString())
+            ->where("last_checked", "<=", Carbon::now()->subMinutes(60))
             ->whereDoesntHave("user.subscriptions", function ($q) {
                 $q->where("subscription_type", SubscriptionType::TURBO)
-                    ->where("end_date", ">=", Carbon::now()->toDateTimeString());
+                    ->where("end_date", ">=", Carbon::now());
             })->get();
 
         error_log(json_encode($otherSyncs));
