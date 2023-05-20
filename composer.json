@@ -10,6 +10,7 @@
         "aerni/laravel-spotify": "^2.1",
         "doctrine/dbal": "^3.6",
         "exolnet/laravel-heartbeat": "^1.9",
+        "google/apiclient": "^2.12.1",
         "guzzlehttp/guzzle": "^7.5",
         "laravel-notification-channels/apn": "^5.0",
         "laravel/framework": "^10.0",
