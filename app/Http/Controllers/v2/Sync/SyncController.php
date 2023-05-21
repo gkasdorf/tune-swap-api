@@ -44,7 +44,7 @@ class SyncController extends \App\Http\Controllers\Controller
         return ApiResponse::success([
             "message" => "Retrieved sync successfully.",
             "sync" => $sync,
-            "subscription" => $request->user()->getSubscription()->subscription_type,
+            "subscription" => $request->user()->getSubscription()?->subscription_type,
             "nextCheck" => $sync->getNextCheck()
         ]);
     }
