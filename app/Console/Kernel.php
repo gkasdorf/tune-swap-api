@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
             }
         })->everyThreeMinutes();
 
-        $schedule->job(new CheckSyncs)->everyMinute();
+        $schedule->job(new CheckSyncs)->everyMinute()->onOneServer();
     }
 
     /**
