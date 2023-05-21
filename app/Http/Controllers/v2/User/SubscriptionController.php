@@ -139,4 +139,59 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             return ApiResponse::error($e->getMessage());
         }
     }
+
+    public function appleIapCallback(Request $request): JsonResponse
+    {
+        $data = $request->post();
+
+        if ($data->password != env("APP_STORE_SECRET")) {
+            return ApiResponse::fail("Invalid password.");
+        }
+
+        if ($data->notification_type != "DID_RENEW") {
+            return ApiResponse::success("Received but unneeded.");
+        }
+
+        $latest = $data->unified_receipt->latest_receipt_info[0];
+
+        $user = Order::getUserByOriginalOrderIdApple($latest->original_transaction_id);
+
+        if (!$user) {
+            // TODO - send email to admin
+            return ApiResponse::fail("User not found.");
+        }
+
+        $dataToStore = [
+            "product_id" => $latest->product_id,
+            "transaction_id" => $latest->transaction_id,
+            "original_transaction_id" => $latest->original_transaction_id,
+            "purchase_date" => $latest->purchase_date,
+            "purchase_date_ms" => $latest->purchase_date_ms,
+            "expires_date" => $latest->expires_date,
+            "expires_date_ms" => $latest->expires_date_ms,
+            "is_trial_period" => $latest->is_trial_period
+        ];
+
+        $order = new Order([
+            "user_id" => $request->user()->id,
+            "payment_type" => PaymentType::APPLE,
+            "payment_amount" => 0.0,
+            "subscription_type" => $latest->product_id == "com.gkasdorf.tuneswap.turbo" ? SubscriptionType::TURBO : SubscriptionType::PLUS,
+            "order_data" => json_encode($dataToStore),
+            "transaction_id" => $latest->transaction_id
+        ]);
+
+        $order->save();
+
+        $subscription = new Subscription([
+            "user_id" => $request->user()->id,
+            "start_date" => new DateTime(),
+            "end_date" => Carbon::createFromTimestamp($latest->expires_date_ms / 1000)->toDateTimeString(),
+            "subscription_type" => $request->input("productId") == "com.gkasdorf.tuneswap.turbo" ? SubscriptionType::TURBO : SubscriptionType::PLUS,
+        ]);
+
+        $subscription->save();
+
+        return ApiResponse::success("Success!");
+    }
 }

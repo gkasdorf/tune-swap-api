@@ -41,6 +41,8 @@ Route::post("/v2/user/login/apple", [LoginController::class, "doAppleAuth"]);
 Route::get("/applemusic/authPage", [AppleMusicController::class, "authPage"]);
 Route::get("/applemusic/auth", [AppleMusicController::class, "auth"]);
 
+Route::post("/v2/callbacks/apple/iap", [SubscriptionController::class, "appleIapCallback"]);
+
 Route::middleware("auth:sanctum")->group(function () {
     // Has Routes
     Route::get("/v2/user/has/spotify", [HasController::class, "hasSpotify"]);

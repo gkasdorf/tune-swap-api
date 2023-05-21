@@ -49,4 +49,17 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function getUserByOriginalOrderIdApple(string $originalOrderId): ?User
+    {
+        $order = Order::where("transaction_id", $originalOrderId)
+            ->where("payment_type", PaymentType::APPLE)
+            ->first();
+
+        if (!$order) {
+            return null;
+        }
+
+        return $order->user;
+    }
 }
