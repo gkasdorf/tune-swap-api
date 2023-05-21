@@ -243,7 +243,7 @@ class Spotify
         $url = "$this->baseUrl/search?" . http_build_query($data);
 
         $resp = json_decode(Http::withHeaders($this->header)->get($url)->body());
-        $track = $resp->tracks->items[0];
+        $track = $resp->tracks->items[0] ?? null;
 
         if (!$track) {
             return null;
