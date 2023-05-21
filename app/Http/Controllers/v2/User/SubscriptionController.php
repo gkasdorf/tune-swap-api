@@ -145,14 +145,14 @@ class SubscriptionController extends \App\Http\Controllers\Controller
                 return ApiResponse::fail("Invalid password.");
             }
 
-            if ($data->notification_type != "DID_RENEW") {
+            if ($data->notification_type != "DID_RENEW" && $data->notification_type != "DID_RECOVER") {
                 return ApiResponse::success("Received but unneeded.");
             }
 
             $latest = (object)$data->unified_receipt["latest_receipt_info"][0];
 
             $user = Order::getUserByOriginalOrderIdApple($latest->original_transaction_id);
-            
+
             if (!$user) {
                 // TODO - send email to admin
                 return ApiResponse::fail("User not found.");
