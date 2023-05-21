@@ -52,10 +52,6 @@ class TidalController extends Controller
                 "username" => $user->tidal_username
             ]);
         } catch (Exception $e) {
-            error_log($e->getMessage());
-            error_log($e->getLine());
-            error_log($e->getCode());
-            error_log($e->getTraceAsString());
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }

@@ -40,9 +40,7 @@ class SwapController
                 "swapId" => $swap->id,
                 "swapStatus" => $swap->status
             ]);
-        } catch (Exception $e) {
-            error_log($e->getMessage());
-            error_log($e->getLine());
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
@@ -60,7 +58,7 @@ class SwapController
                 "total" => $total,
                 "swaps" => count($swaps) > 0 ? $swaps : []
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ApiResponse::error("An unexpected error has occurred.");
         }
     }
