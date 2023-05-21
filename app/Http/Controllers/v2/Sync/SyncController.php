@@ -59,7 +59,7 @@ class SyncController extends \App\Http\Controllers\Controller
             "toId" => "required",
         ]);
 
-        if ($request->user()->getSubscription()?->subscription_type !== SubscriptionType::TURBO && $request->user()->getTotalSyncs() >= 3) {
+        if ($request->user()->getSubscription()?->subscription_type !== SubscriptionType::TURBO && $request->user()->getActiveSyncCount() >= 3) {
             return ApiResponse::fail("You may only have a maximum of 5 active syncs.");
         }
 
