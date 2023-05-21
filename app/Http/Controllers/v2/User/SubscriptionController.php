@@ -11,6 +11,7 @@ use App\Types\PaymentType;
 use App\Types\SubscriptionType;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -78,10 +79,8 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "subscription" => $subscription
             ]);
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            error_log($e->getLine());
-            error_log($e->getFile());
+        } catch (Exception $e) {
+            error_log($e);
 
             return ApiResponse::error($e->getMessage());
         }
@@ -97,7 +96,6 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             ]);
 
             $googlePlay = new GooglePlay();
-            error_log("We are here.");
             $verify = $googlePlay->verifyReceipt(
                 $request->input("packageName"),
                 $request->input("productId"),
@@ -131,10 +129,8 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             return ApiResponse::success([
                 "subscription" => $subscription
             ]);
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            error_log($e->getLine());
-            error_log($e->getFile());
+        } catch (Exception $e) {
+            error_log($e);
 
             return ApiResponse::error($e->getMessage());
         }
@@ -143,9 +139,9 @@ class SubscriptionController extends \App\Http\Controllers\Controller
     public function appleIapCallback(Request $request): JsonResponse
     {
         try {
-            $data = $request->post();
+            $data = (object)$request->post();
 
-            if ($data->password != env("APP_STORE_SECRET")) {
+            if (!isset($data->password) || $data->password != env("APP_STORE_SECRET")) {
                 return ApiResponse::fail("Invalid password.");
             }
 
@@ -153,10 +149,10 @@ class SubscriptionController extends \App\Http\Controllers\Controller
                 return ApiResponse::success("Received but unneeded.");
             }
 
-            $latest = $data->unified_receipt->latest_receipt_info[0];
+            $latest = (object)$data->unified_receipt["latest_receipt_info"][0];
 
             $user = Order::getUserByOriginalOrderIdApple($latest->original_transaction_id);
-
+            
             if (!$user) {
                 // TODO - send email to admin
                 return ApiResponse::fail("User not found.");
@@ -174,7 +170,7 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             ];
 
             $order = new Order([
-                "user_id" => $request->user()->id,
+                "user_id" => $user->id,
                 "payment_type" => PaymentType::APPLE,
                 "payment_amount" => 0.0,
                 "subscription_type" => $latest->product_id == "com.gkasdorf.tuneswap.turbo" ? SubscriptionType::TURBO : SubscriptionType::PLUS,
@@ -185,7 +181,7 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             $order->save();
 
             $subscription = new Subscription([
-                "user_id" => $request->user()->id,
+                "user_id" => $user->id,
                 "start_date" => new DateTime(),
                 "end_date" => Carbon::createFromTimestamp($latest->expires_date_ms / 1000)->toDateTimeString(),
                 "subscription_type" => $request->input("productId") == "com.gkasdorf.tuneswap.turbo" ? SubscriptionType::TURBO : SubscriptionType::PLUS,
@@ -194,8 +190,8 @@ class SubscriptionController extends \App\Http\Controllers\Controller
             $subscription->save();
 
             return ApiResponse::success("Success!");
-        } catch (\Exception $e) {
-            error_log(json_encode($e));
+        } catch (Exception $e) {
+            error_log($e);
 
             return ApiResponse::error($e->getMessage());
         }
