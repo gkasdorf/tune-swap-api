@@ -10,11 +10,13 @@
         "aerni/laravel-spotify": "^2.1",
         "doctrine/dbal": "^3.6",
         "exolnet/laravel-heartbeat": "^1.9",
+        "google/apiclient": "^2.12.1",
         "guzzlehttp/guzzle": "^7.5",
         "laravel-notification-channels/apn": "^5.0",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
+        "mxl/laravel-job": "^1.4",
         "pouler/apple-music-api": "^0.6.1"
     },
     "require-dev": {

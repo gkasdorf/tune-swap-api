@@ -162,6 +162,13 @@ class AppleMusic
         return json_decode(Http::withHeaders($this->header)->get($url)->body())->data[0]->attributes->name;
     }
 
+    public function getPlaylistTotal(string $id): int
+    {
+        $url = "$this->baseUrlMe/library/playlists/$id/tracks";
+
+        return json_decode(Http::withHeaders($this->header)->get($url)->body())->meta->total;
+    }
+
     public function getPlaylistUrl($id): string
     {
         if ($id == "library") {
@@ -208,20 +215,6 @@ class AppleMusic
         return $parsedSongs;
     }
 
-//    /**
-//     * Get a playlist from the catalog
-//     * @param string $id
-//     * @return object
-//     */
-//    public function getPlaylist(string $id): object
-//    {
-//        // Create the url
-//        $url = "$this->baseUrl/catalog/$this->storefront/playlists/$id";
-//
-//        // Return the response
-//        return json_decode(Http::withHeaders($this->header)->get($url)->body());
-//    }
-
     /**
      * Get a catalog resource (in this case a track)
      * @param string $q
@@ -266,40 +259,47 @@ class AppleMusic
      */
     public function createPlaylist(string $name, array $tracks, string $description = ""): object
     {
-        // Create our data. This is gonna be json (fucking apple lol)
+        // Data for creating the playlist
         $data = [
             "attributes" => [
                 "name" => $name,
                 "description" => $description
-            ],
-            "relationships" => [
-                "tracks" => [
-                    "data" => [
-                    ]
-                ]
             ]
         ];
 
-        // Add each track to the data
-        foreach ($tracks as $track) {
-            $data["relationships"]["tracks"]["data"][] = [
-                "id" => $track,
-                "type" => "songs"
-            ];
-        }
-
-        // JSON encode the data
-        $jsonData = json_encode($data);
-
-        // Set the URL for the post
+        // Create the playlist
         $url = $this->baseUrlMe . "/library/playlists";
+        $createRes = json_decode(Http::withHeaders($this->header)->withBody(json_encode($data))->post($url)->body());
 
-        // Submit the post request with the json and return the result
-        $createRes = json_decode(Http::withHeaders($this->header)->withBody($jsonData)->post($url)->body());
+        $this->addTracksToPlaylist($createRes->data[0]->id, $tracks);
 
         return (object)[
             "id" => $createRes->data[0]->id,
             "url" => $this->getPlaylistUrl($createRes->data[0]->id)
         ];
+    }
+
+    public function addTracksToPlaylist(string $id, array $tracks): void
+    {
+        $chunks = array_chunk($tracks, 100);
+
+        foreach ($chunks as $chunk) {
+            $data = [
+                "data" => []
+            ];
+
+            foreach ($chunk as $track) {
+                $data["data"][] = [
+                    "id" => $track,
+                    "type" => "songs"
+                ];
+            }
+
+            $jsonData = json_encode($data);
+
+            $url = "$this->baseUrlMe/library/playlists/$id/tracks";
+
+            Http::withHeaders($this->header)->withBody($jsonData)->post($url);
+        }
     }
 }

@@ -4,7 +4,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
-namespace App\Http;
+namespace App\Types;
 
 
 enum MusicService: string
