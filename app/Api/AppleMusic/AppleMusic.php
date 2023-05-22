@@ -81,7 +81,7 @@ class AppleMusic
         foreach ($tracks->data as $track) {
             try {
                 $tracksParsed[] = new ParsedSong(
-                    $track->attributes->playParams->id,
+                    $track->attributes->playParams->catalogId,
                     $track->attributes->name,
                     $track->attributes->artistName,
                     $track->attributes->albumName,
@@ -200,7 +200,7 @@ class AppleMusic
         foreach ($response->data as $song) {
             try {
                 $parsedSongs[] = new ParsedSong(
-                    $song->attributes->playParams->id,
+                    $song->attributes->playParams->catalogId,
                     $song->attributes->name,
                     $song->attributes->artistName,
                     $song->attributes->albumName,
