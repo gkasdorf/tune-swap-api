@@ -28,8 +28,10 @@ class CheckSyncs implements ShouldQueue
          * 4. Dispatch the job if the sync needs to be performed, if not, update the last checked time.
          */
 
+        $checkTime = env("APP_DEBUG") ? 0 : 5;
+
         $turboSyncs = Sync::getActive()
-            ->where("last_checked", "<=", Carbon::now()->subMinutes(5))
+            ->where("last_checked", "<=", Carbon::now()->subMinutes($checkTime))
             ->whereHas("user.subscriptions", function ($q) {
                 $q->where("subscription_type", SubscriptionType::TURBO)
                     ->where("end_date", ">=", Carbon::now()->toDateTimeString());
