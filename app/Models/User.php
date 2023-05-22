@@ -81,7 +81,7 @@ class User extends Authenticatable
     {
         if ($this->subscriptions()->count() < 1) return null;
 
-        $subscription = $this->subscriptions()->latest()->first();
+        $subscription = $this->subscriptions()->orderByDesc("id")->first();
 
         if (strtotime($subscription->end_date) < time()) {
             return null;
