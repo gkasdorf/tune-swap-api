@@ -99,74 +99,109 @@ class DoSync implements ShouldQueue
 
     private function comparePlaylists(): void
     {
-        error_log("Comparing...");
-
-        error_log("Getting current songs...");
         // Get the currently stored songs
         $fromCurrentSongs = $this->fromPlaylist->playlistSongs()->with("song")->get();
         $toCurrentSongs = $this->toPlaylist->playlistSongs()->with("song")->get();
 
-        error_log("Getting live songs...");
         // Get the songs that are in the playlist
         $fromLiveSongs = $this->fromApi->getPlaylist($this->fromPlaylist->service_id);
         $toLiveSongs = $this->toApi->getPlaylist($this->toPlaylist->service_id);
 
-        error_log("Setting column names...");
         //Get the column names
         $fromColumnName = Helpers::serviceToColumnName($this->fromPlaylist->service);
         $toColumnName = Helpers::serviceToColumnName($this->toPlaylist->service);
 
-        error_log("LoOpInG");
         foreach ($fromLiveSongs as $parsedSong) {
+            // See if the song is in the from playlist
+            $song = $fromCurrentSongs->firstWhere("song.$fromColumnName", $parsedSong->id)?->song;
+
+            // If not
+            if (!$song) {
+                // See if we have the song in the database
+                $song = Song::firstWhere($fromColumnName, $parsedSong->id);
+
+                // If not create it
+                if (!$song) {
+                    error_log("Not in DB. Creating.");
+                    $song = SwapHelper::createSong($parsedSong, $this->fromPlaylist->service);
+                }
+
+                // Add it to the from playlist
+                $this->addSongToPlaylist($this->fromPlaylist, $song);
+            }
+
+            // See if we have the song in the to playlist and continue if we do
             if ($toCurrentSongs->firstWhere("song.$fromColumnName", $parsedSong->id))
                 continue;
 
-            $playlistSong = $fromCurrentSongs->firstWhere("song.$fromColumnName", $parsedSong->id);
+            // If not...
+            // See if we already have the to playlist song id
+            if (!$song[$toColumnName]) {
+                // If we don't we will try to find it
+                $search = SwapHelper::findTrackId($song, MusicService::from($this->toPlaylist->service), $this->toApi);
 
-            $song = null;
+                // If we can't find the id, we will continue.
+                if (!$search)
+                    continue;
 
-            if (!$playlistSong) {
-                $song = SwapHelper::createSong($parsedSong, $this->fromPlaylist->service);
-            } else {
-                $song = $playlistSong->song;
+                // Add the id to the song
+                $song[$toColumnName] = $search["trackId"];
+                $song->save();
+
+                if ($search["usedApi"]) {
+                    usleep(500);
+                }
             }
 
-            $search = SwapHelper::findTrackId($song, MusicService::from($this->toPlaylist->service), $this->toApi);
-
-            if (!$search)
-                continue;
-
-            $this->addToTo[] = $search["trackId"];
+            // Add the song to the to playlist and add it to the tracks to add to the playlist
             $this->addSongToPlaylist($this->toPlaylist, $song);
-
-            if ($search["usedApi"])
-                usleep(500);
+            $this->addToTo[] = $song[$toColumnName];
         }
 
         foreach ($toLiveSongs as $parsedSong) {
+            // See if the song is in the to playlist
+            $song = $toCurrentSongs->firstWhere("song.$toColumnName", $parsedSong->id)?->song;
+
+            // If not
+            if (!$song) {
+                // See if we have the song in the database
+                $song = Song::firstWhere($toColumnName, $parsedSong->id);
+
+                // If not create it
+                if (!$song) {
+                    $song = SwapHelper::createSong($parsedSong, $this->toPlaylist->service);
+                }
+
+                // Add it to the from playlist
+                $this->addSongToPlaylist($this->toPlaylist, $song);
+            }
+
+            // See if we have the song in the to playlist and continue if we do
             if ($fromCurrentSongs->firstWhere("song.$toColumnName", $parsedSong->id))
                 continue;
 
-            $playlistSong = $toCurrentSongs->firstWhere("song.$toColumnName", $parsedSong->id);
+            // If not...
+            // See if we already have the to playlist song id
+            if (!$song[$fromColumnName]) {
+                // If we don't we will try to find it
+                $search = SwapHelper::findTrackId($song, MusicService::from($this->fromPlaylist->service), $this->fromApi);
 
-            $song = null;
+                // If we can't find the id, we will continue.
+                if (!$search)
+                    continue;
 
-            if (!$playlistSong) {
-                $song = SwapHelper::createSong($parsedSong, $this->toPlaylist->service);
-            } else {
-                $song = $playlistSong->song;
+                // Add the id to the song
+                $song[$fromColumnName] = $search["trackId"];
+                $song->save();
+
+                if ($search["usedApi"]) {
+                    usleep(500);
+                }
             }
 
-            $search = SwapHelper::findTrackId($song, MusicService::from($this->fromPlaylist->service), $this->fromApi);
-
-            if (!$search)
-                continue;
-
-            $this->addToFrom[] = $search["trackId"];
+            // Add the song to the to playlist and add it to the tracks to add to the playlist
             $this->addSongToPlaylist($this->fromPlaylist, $song);
-
-            if ($search["usedApi"])
-                usleep(500);
+            $this->addToFrom[] = $song[$fromColumnName];
         }
     }
 
