@@ -32,17 +32,17 @@ class SwapHelper
         switch (MusicService::from($service)) {
             case MusicService::SPOTIFY:
             {
-                $song->spotify_id = $song->id;
+                $song->spotify_id = $parsedSong->id;
                 break;
             }
             case MusicService::APPLE_MUSIC:
             {
-                $song->apple_music_id = $song->id;
+                $song->apple_music_id = $parsedSong->id;
                 break;
             }
             case MusicService::TIDAL:
             {
-                $song->tidal_id = $song->id;
+                $song->tidal_id = $parsedSong->id;
                 break;
             }
         }
