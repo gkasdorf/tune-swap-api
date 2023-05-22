@@ -144,10 +144,6 @@ class DoSync implements ShouldQueue
                 if (!$search)
                     continue;
 
-                // Add the id to the song
-                $song[$toColumnName] = $search["trackId"];
-                $song->save();
-
                 if ($search["usedApi"]) {
                     usleep(500);
                 }
@@ -189,10 +185,6 @@ class DoSync implements ShouldQueue
                 // If we can't find the id, we will continue.
                 if (!$search)
                     continue;
-
-                // Add the id to the song
-                $song[$fromColumnName] = $search["trackId"];
-                $song->save();
 
                 if ($search["usedApi"]) {
                     usleep(500);
